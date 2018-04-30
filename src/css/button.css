@@ -1,0 +1,311 @@
+.button {
+  height: 200px;
+  width: 200px;
+  top: 50%;
+  left: 50%;
+  cursor: pointer;
+  margin: auto;
+}
+
+.button .outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  background: rgba(150, 150, 150, 1);
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  box-shadow: inset rgba(0, 0, 0, 0.85) 0px 1px 5px;
+  -webkit-box-shadow: inset rgba(0,0,0,0.85) 0px 1px 5px;
+  -moz-box-shadow: inset rgba(0,0,0,0.85) 0px 1px 5px;
+  /* -webkit-transform: perspective(500px) rotateX(35deg);
+  -moz-transform: perspective(500px) rotateX(35deg); */
+}
+
+.button .outer .height {
+  position: relative;
+  height: 100%;
+  margin-top: -15px;
+  padding-bottom: 15px;
+  background: #39A02D;
+  border-radius: 130px;
+  -webkit-border-radius: 130px;
+  -moz-border-radius: 130px;
+  box-shadow: rgba(0, 0, 0, 0.85) 0px 1px 1px, inset rgba(0, 0, 0, 0.35) 0px -2px 8px;
+  -webkit-box-shadow: rgba(0,0,0,0.85) 0px 1px 1px, inset rgba(0,0,0,0.35) 0px -2px 8px;
+  -moz-box-shadow: rgba(0,0,0,0.85) 0px 1px 1px, inset rgba(0,0,0,0.35) 0px -2px 8px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+}
+
+.button:hover .outer .height {
+  margin-top: -10px;
+  padding-bottom: 10px;
+  background: #3AAF2D;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px, inset rgba(0, 0, 0, 0.35) 0px -2px 6px;
+  -webkit-box-shadow: rgba(0,0,0,0.25) 0px 1px 1px, inset rgba(0,0,0,0.35) 0px -2px 6px;
+  -moz-box-shadow: rgba( 0,0,0,0.25) 0px 1px 1px, inset rgba(0,0,0,0.35) 0px -2px 6px;
+}
+
+.button:active .outer .height {
+  margin-top: 0px;
+  padding-bottom: 0px;
+}
+
+.button .outer .height .inner {
+  line-height: 2.8em;
+  font-size: 30px;
+  letter-spacing: 0.05em;
+  position: relative;
+  height: 100%;
+  text-align: center;
+  text-shadow: #8AFF7B 0px 0px 1px;
+  background: #44D135;
+  background: -moz-linear-gradient(top, #80EC75 0%, #43D034 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#80ec75), color-stop(100%,#43d034));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #80EC75 0%, #43D034 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: linear-gradient(top, #80ec75 0%,#43d034 100%);
+  /* W3C */
+  border-radius: 130px;
+  -webkit-border-radius: 130px;
+  -moz-border-radius: 130px;
+  box-shadow: inset rgba(255, 255, 255, 0.85) 0px 0px 1px;
+  -webkit-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;
+  -moz-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+}
+
+.button:hover .outer .height .inner {
+  text-shadow: #99F48D 0px 0px 1px;
+  background: #43D034;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #43D034 0%, #67E45C 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#43d034), color-stop(100%,#67e45c));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #43D034 0%, #67E45C 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: linear-gradient(top, #43d034 0%,#67e45c 100%);
+  /* W3C */
+}
+
+.button:active .outer .height .inner {
+  text-shadow: #319926 0px 1px 0px;
+  border-radius: 130px;
+  -webkit-border-radius: 130px;
+  -moz-border-radius: 130px;
+  box-shadow: inset rgba(0, 0, 0, 0.9) 0px 0px 8px;
+  -webkit-box-shadow: inset rgba(0,0,0,0.9) 0px 0px 8px;
+  -moz-box-shadow: inset rgba(0,0,0,0.9) 0px 0px 8px;
+  background: #1D7D12;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #1D7D12 0%, #4FD342 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1d7d12), color-stop(100%,#4fd342));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #1D7D12 0%, #4FD342 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: linear-gradient(top, #1d7d12 0%,#4fd342 100%);
+  /* W3C */
+}
+/* timer stuff */
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 20px;
+}
+
+.timer-group {
+  height: 400px;
+  margin: 0 auto;
+  position: relative;
+  width: 400px;
+  -webkit-transform: perspective(500px) rotateX(30deg);
+  /* -moz-transform: perspective(500px) rotateX(3deg); */
+}
+
+.timer {
+  border-radius: 50%;
+  height: 100px;
+  overflow: hidden;
+  position: absolute;
+  width: 100px;
+}
+
+.timer:after {
+  background: #111 url(https://codepen.io/images/classy_fabric.png);
+  border-radius: 50%;
+  content: "";
+  display: block;
+  height: 80px;
+  left: 10px;
+  position: absolute;
+  width: 80px;
+  top: 10px;
+}
+
+.timer .hand {
+  float: left;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  width: 50%;
+}
+
+.timer .hand span {
+  border: 50px solid rgba(0, 255, 255, 0.4);
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+  display: block;
+  height: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: rotate(225deg);
+  width: 0;
+}
+
+.timer .hand:first-child {
+  transform: rotate(180deg);
+}
+
+.timer .hand span {
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.timer .hand:first-child span {
+  animation-name: spin1;
+}
+
+.timer .hand:last-child span {
+  animation-name: spin2;
+}
+
+.timer.hour {
+  background: rgba(0, 0, 0, 0.3);
+  height: 400px;
+  left: 0;
+  width: 400px;
+  top: 0;
+}
+
+.timer.hour .hand span {
+  animation-duration: 3600s;
+  border-top-color: rgba(255, 0, 255, 0.4);
+  border-right-color: rgba(255, 0, 255, 0.4);
+  border-width: 200px;
+}
+
+.timer.hour:after {
+  height: 360px;
+  left: 20px;
+  width: 360px;
+  top: 20px;
+}
+
+.timer.minute {
+  background: rgba(0, 0, 0, 0.2);
+  height: 350px;
+  left: 25px;
+  width: 350px;
+  top: 25px;
+}
+
+.timer.minute .hand span {
+  animation-duration: 60s;
+  border-top-color: rgba(0, 255, 255, 0.4);
+  border-right-color: rgba(0, 255, 255, 0.4);
+  border-width: 175px;
+}
+
+.timer.minute:after {
+  height: 310px;
+  left: 20px;
+  width: 310px;
+  top: 20px;
+}
+
+.timer.second {
+  background: rgba(0, 0, 0, 0.2);
+  height: 300px;
+  left: 50px;
+  width: 300px;
+  top: 50px;
+}
+
+.timer.second .hand span {
+  animation-duration: 1s;
+  border-top-color: rgba(255, 255, 255, 0.15);
+  border-right-color: rgba(255, 255, 255, 0.15);
+  border-width: 150px;
+}
+
+.timer.second:after {
+  height: 296px;
+  left: 2px;
+  width: 296px;
+  top: 2px;
+}
+
+.face {
+  border-radius: 50%;
+  left: 52px;
+  position: absolute;
+  width: 296px;
+  text-align: center;
+  top: 17px;
+  margin: 80px auto auto;
+}
+
+.face h2 {
+  font-weight: 300;
+}
+
+.face p {
+  border-radius: 20px;
+  font-size: 76px;
+  font-weight: 400;
+  position: absolute;
+  top: 17px;
+  width: 260px;
+  left: 20px;
+}
+
+@keyframes spin1 {
+  0% {
+    transform: rotate(225deg);
+  }
+  
+  50% {
+    transform: rotate(225deg);
+  }
+  
+  100% {
+    transform: rotate(405deg);
+  }
+}
+
+@keyframes spin2 {
+  0% {
+    transform: rotate(225deg);
+  }
+  
+  50% {
+    transform: rotate(405deg);
+  }
+  
+  100% {
+    transform: rotate(405deg);
+  }
+}
