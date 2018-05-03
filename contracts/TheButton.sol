@@ -28,7 +28,7 @@ contract SimpleAccounting {
         name: "Base"
     });
 
-    event ETHDeposited(bytes32 indexed account, address indexed from, uint value);
+    // event ETHDeposited(bytes32 indexed account, address indexed from, uint value);
     event ETHSent(bytes32 indexed account, address indexed to, uint value);
     event ETHTransferred(bytes32 indexed fromAccount, bytes32 indexed toAccount, uint value);
 
@@ -43,7 +43,7 @@ contract SimpleAccounting {
     function depositETH(Account storage a, address _from, uint _value) internal {
         a.balance = a.balance.add(_value);
         totalETH = totalETH.add(_value);
-        emit ETHDeposited(a.name, _from, _value);
+        // emit ETHDeposited(a.name, _from, _value); remove deposit events to save gas
     }
 
     function sendETH(Account storage a, address _to, uint _value) 
@@ -88,7 +88,9 @@ contract SimpleAccounting {
 
 }
 
-contract ButtonInterface is DSAuth, SimpleAccounting {
+contract ButtonBase is DSAuth, SimpleAccounting {
+
+    using DSMath for uint;
 
     uint constant ONE_PERCENT_WAD = 10 ** 16;// 1 wad is 10^18, so 1% in wad is 10^16
     uint constant ONE_WAD = 10 ** 18;
@@ -99,7 +101,8 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
 
     uint public startingPrice;
     uint public priceMultiplier;//formula for calculating every next price
-    uint public period = 1 hours;// what's the period for pressing the button
+    uint32 public n = 1; //increase the price after every n presses
+    uint32 public period = 1 hours;// what's the period for pressing the button
     uint public devFraction = 10 * ONE_PERCENT_WAD; //10%
     uint public charityFraction = 5 * ONE_PERCENT_WAD; //5%
     address public charityBeneficiary;
@@ -118,13 +121,6 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
 
     mapping (address => Account) winners;
 
-    struct ButtonCampaign {
-
-    }
-
-    uint public numCampaigns;
-    ButtonCampaign[] campaigns;
-
     modifier limited(uint value, uint min, uint max) {
         require(value >= min && value <= max);
         _;
@@ -132,22 +128,30 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
 
     mapping (bytes4 => uint) internal _lastExecuted;
     modifier timeLimited(uint _howOften) {
-        require(_lastExecuted[msg.sig] + _howOften <= now);
+        require(_lastExecuted[msg.sig].add(_howOften) <= now);
         _lastExecuted[msg.sig] = now;
         _;
     }
 
     event Pressed(address by, uint paid, uint64 timeLeft);
-    event Started(uint initialJackpot, uint period);
+    event Started(uint startingETH, uint32 period, uint32 i);
     event Winrar(address guy, uint jackpot);
 
-    function press() external payable;
+    event CharityChanged(address newCharityBeneficiary);
+    event ButtonParamsChanged(uint startingPrice, uint32 n, uint32 period, uint priceMul);
+    event AccountingParamsChanged(uint devFraction, uint charityFraction);
+
+    function press() public payable;
     function price() public view returns(uint);
-    function timeLeft() public view returns(uint);
-    function jackpot() public view returns(uint);
+    function timeLeft() external view returns(uint);
+    function jackpot() external view returns(uint);
     function active() public view returns(bool);
     
-    function hasWon(address _guy) public view returns(uint) {
+    function () public payable {
+        press();
+    }
+
+    function hasWon(address _guy) external view returns(uint) {
         return winners[_guy].balance;
     }
 
@@ -160,12 +164,6 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
         require(winners[msg.sender].balance > 0);
         transferETH(winners[msg.sender], charity, winners[msg.sender].balance);
     }
-
-    //in case you played with a bot or smart contract...
-    // function giveJackpot(address _to) public {
-    //     require(winners[msg.sender].balance > 0);
-    //     transferETH(winners[msg.sender], winners[_to], winners[msg.sender].balance);
-    // }
 
     function withdrawRevenue() public auth {
         sendETH(revenue, owner, revenue.balance);
@@ -181,25 +179,28 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
         return ONE_WAD.sub(devFraction).sub(charityFraction);
     }
 
-    function setButtonParams(uint _startingPrice, uint _priceMul, uint _period) public 
+    function setButtonParams(uint _startingPrice, uint _priceMul, uint32 _period, uint32 _n) public 
     auth
     limited(_startingPrice, 1 szabo, 10 ether)
     limited(_priceMul, ONE_WAD, 10 * ONE_WAD)
-    limited(period, 30 seconds, 1 days)
+    limited(period, 30 seconds, 1 weeks)
     {
         startingPrice = _startingPrice;
         priceMultiplier = _priceMul;
         period = _period;
+        n = _n;
+        emit ButtonParamsChanged(_startingPrice, _n, _period, _priceMul);
     }
 
     function setAccountingParams(uint _devF, uint _charityF) public 
     auth
     limited(_devF, 0, 20 * ONE_PERCENT_WAD) //can't set the dev fraction to more than 20%
     limited(_charityF, 0, 100 * ONE_PERCENT_WAD) // charity fraction can be up to 100%
-    limited(_devF.add(_charityF), 0, ONE_WAD) // up to 100%
+    limited(_devF.add(_charityF), 0, ONE_WAD) // up to 100% - charity fraction could be set to 100% for special occasions
     timeLimited(4 weeks) { // can only be changed once every 4 weeks
         devFraction = _devF;
         charityFraction = _charityF;
+        emit AccountingParamsChanged(_devF, _charityF);
     }
 
     function setCharityBeneficiary(address _charity) public 
@@ -208,9 +209,124 @@ contract ButtonInterface is DSAuth, SimpleAccounting {
     {   
         require(_charity != address(0));
         charityBeneficiary = _charity;
+        emit CharityChanged(_charity);
+    }
+}
+
+
+contract TheButton is ButtonBase {
+    
+    using DSMath for uint;
+
+    struct ButtonCampaign {
+        uint price;        
+        uint priceMultiplier;
+        uint devFraction;
+        uint charityFraction;
+
+        address lastPresser;
+        uint64 deadline;
+        uint40 presses;
+        uint32 n;
+        uint32 period;
+        bool finalized;
+
+        Account total;       
     }
 
-    function _newCampaign() internal;
-    function _processPayment() internal;
-    function _processFinishedCampaign(uint id) internal;
+    uint32 public numCampaigns;
+    ButtonCampaign[] public campaigns;
+
+    constructor() public {
+
+    }
+
+    function press() public payable {
+        ButtonCampaign storage c = campaigns[numCampaigns];
+        if (active()) {
+            _press(c);
+        } else {            
+            if(!c.finalized) {
+                _finalizeCampaign(c);
+            }
+            _newCampaign();
+            c = campaigns[numCampaigns];
+                       
+            _press(c);
+        } 
+    }
+
+    function price() public view returns(uint) {
+        if(active()) {
+            return campaigns[numCampaigns].price;
+        } else {
+            return startingPrice;
+        }
+    }
+
+    function timeLeft() external view returns(uint) {
+        if (active()) {
+            return campaigns[numCampaigns].deadline - now;
+        } else {
+            return 0;
+        }
+    }
+
+    function deadline() external view returns(uint64) {
+        return campaigns[numCampaigns].deadline;
+    }
+
+    function jackpot() external view returns(uint) {
+        if(active()) {
+            campaigns[numCampaigns].total.balance.wmul(jackpotFraction());
+        } else {
+            return 0;
+        }
+    }
+
+    function active() public view returns(bool) {
+        return campaigns[numCampaigns].deadline >= now;
+    }
+
+    function _press(ButtonCampaign storage c) internal {
+        require(c.deadline >= now);
+        require(msg.value >= c.price);
+        c.presses += 1;//no need for safe math, as it is not a critical calculation
+        c.lastPresser = msg.sender;
+        emit Pressed(msg.sender, msg.value, c.deadline - uint64(now));
+        c.deadline = uint64(now.add(c.period));        
+        depositETH(c.total, msg.sender, msg.value);
+    }
+
+    function _newCampaign() internal {
+        assert(!active());
+        assert(devFraction.add(charityFraction).add(jackpotFraction()) == ONE_WAD);
+        
+        uint _campaignID = campaigns.length++;
+        ButtonCampaign storage c = campaigns[_campaignID];
+        numCampaigns++;
+
+        c.price = startingPrice;
+        c.priceMultiplier = priceMultiplier;
+        c.devFraction = devFraction;
+        c.charityFraction = charityFraction;
+        c.deadline = uint64(now.add(period));
+        c.n = n;
+        c.period = period;
+        c.total.name = keccak256("Jackpot ", numCampaigns);       
+        emit Started(msg.value, period, numCampaigns); 
+    }
+
+    function _finalizeCampaign(ButtonCampaign storage c) internal {
+        require(c.deadline < now);
+        require(!c.finalized);
+        uint total = c.total.balance;
+        transferETH(c.total, winners[c.lastPresser], total.wmul(jackpotFraction()));
+        winners[c.lastPresser].name = bytes32(c.lastPresser);
+        transferETH(c.total, revenue, total.wmul(c.devFraction));
+        transferETH(c.total, charity, total.wmul(c.charityFraction));
+
+        c.finalized = true;
+        emit Winrar(c.lastPresser, total.wmul(jackpotFraction()));
+    }
 }
