@@ -99,8 +99,8 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     uint public totalCharity;
     uint public totalWon;
 
-    uint public startingPrice;
-    uint public priceMultiplier;//formula for calculating every next price
+    uint public startingPrice = 1 finney;
+    uint public priceMultiplier = 103 * 10 **16;//formula for calculating every next price
     uint32 public n = 1; //increase the price after every n presses
     uint32 public period = 1 hours;// what's the period for pressing the button
     uint public devFraction = 10 * ONE_PERCENT_WAD; //10%
@@ -134,7 +134,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     }
 
     event Pressed(address by, uint paid, uint64 timeLeft);
-    event Started(uint startingETH, uint32 period, uint32 i);
+    event Started(uint startingETH, uint32 period, uint i);
     event Winrar(address guy, uint jackpot);
 
     event CharityChanged(address newCharityBeneficiary);
@@ -234,7 +234,7 @@ contract TheButton is ButtonBase {
         Account total;       
     }
 
-    uint32 public numCampaigns;
+    uint public lastCampaignID;
     ButtonCampaign[] public campaigns;
 
     constructor() public {
@@ -242,23 +242,33 @@ contract TheButton is ButtonBase {
     }
 
     function press() public payable {
-        ButtonCampaign storage c = campaigns[numCampaigns];
+        ButtonCampaign storage c = campaigns[lastCampaignID];
         if (active()) {
             _press(c);
+            depositETH(c.total, msg.sender, msg.value);
         } else {            
             if(!c.finalized) {
                 _finalizeCampaign(c);
             }
             _newCampaign();
-            c = campaigns[numCampaigns];
+            c = campaigns[lastCampaignID];
                        
             _press(c);
+            depositETH(c.total, msg.sender, msg.value);
         } 
+    }
+
+    function start() external payable auth {
+        if(!active()) {
+            _newCampaign();
+            ButtonCampaign storage c = campaigns[lastCampaignID];
+            depositETH(c.total, msg.sender, msg.value);
+        }
     }
 
     function price() public view returns(uint) {
         if(active()) {
-            return campaigns[numCampaigns].price;
+            return campaigns[lastCampaignID].price;
         } else {
             return startingPrice;
         }
@@ -266,26 +276,30 @@ contract TheButton is ButtonBase {
 
     function timeLeft() external view returns(uint) {
         if (active()) {
-            return campaigns[numCampaigns].deadline - now;
+            return campaigns[lastCampaignID].deadline - now;
         } else {
             return 0;
         }
     }
 
     function deadline() external view returns(uint64) {
-        return campaigns[numCampaigns].deadline;
+        return campaigns[lastCampaignID].deadline;
     }
 
     function jackpot() external view returns(uint) {
         if(active()) {
-            campaigns[numCampaigns].total.balance.wmul(jackpotFraction());
+            campaigns[lastCampaignID].total.balance.wmul(jackpotFraction());
         } else {
             return 0;
         }
     }
 
     function active() public view returns(bool) {
-        return campaigns[numCampaigns].deadline >= now;
+        if(campaigns.length == 0) { 
+            return false;
+        } else {
+            return campaigns[lastCampaignID].deadline >= now;
+        }
     }
 
     function _press(ButtonCampaign storage c) internal {
@@ -295,7 +309,7 @@ contract TheButton is ButtonBase {
         c.lastPresser = msg.sender;
         emit Pressed(msg.sender, msg.value, c.deadline - uint64(now));
         c.deadline = uint64(now.add(c.period));        
-        depositETH(c.total, msg.sender, msg.value);
+        c.price = c.price.wmul(c.priceMultiplier);
     }
 
     function _newCampaign() internal {
@@ -304,7 +318,7 @@ contract TheButton is ButtonBase {
         
         uint _campaignID = campaigns.length++;
         ButtonCampaign storage c = campaigns[_campaignID];
-        numCampaigns++;
+        lastCampaignID = _campaignID;
 
         c.price = startingPrice;
         c.priceMultiplier = priceMultiplier;
@@ -313,8 +327,8 @@ contract TheButton is ButtonBase {
         c.deadline = uint64(now.add(period));
         c.n = n;
         c.period = period;
-        c.total.name = keccak256("Jackpot ", numCampaigns);       
-        emit Started(msg.value, period, numCampaigns); 
+        c.total.name = keccak256("Jackpot ", lastCampaignID);       
+        emit Started(msg.value, period, lastCampaignID); 
     }
 
     function _finalizeCampaign(ButtonCampaign storage c) internal {
