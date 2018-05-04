@@ -1,8 +1,10 @@
+var userAccount;
 App = {
     web3Provider: null,
     contracts: {},
     price: null,
     deadline: null,
+    
   
     init: function() {
       // Load data.
@@ -17,9 +19,23 @@ App = {
         App.web3Provider = web3.currentProvider;
       } else {
         // If no injected web3 instance is detected, fall back to Ganache
-        App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
+        App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
       }
       web3 = new Web3(App.web3Provider);
+
+      var accountInterval = setInterval(function() {
+        // Check if account has changed
+        if (web3.eth.accounts[0] !== userAccount) {
+          userAccount = web3.eth.accounts[0];
+          // Call a function to update the UI with the new account
+          
+        }
+      }, 100);
+
+      var dataInterval = setInterval(function() {
+        // Check if account has changed
+        App.getData();
+      }, 1000);
   
       return App.initContract();
     },
@@ -29,10 +45,10 @@ App = {
       $.getJSON('TheButton.json', function(data) {
     //     // Get the necessary contract artifact file and instantiate it with truffle-contract
         var TheButtonArtifact = data;
-        App.contracts.Button = TruffleContract(TheButtonArtifact);
+        App.contracts.TheButton = TruffleContract(TheButtonArtifact);
       
     //     // Set the provider for our contract
-        App.contracts.Button.setProvider(App.web3Provider);
+        App.contracts.TheButton.setProvider(App.web3Provider);
       
     //     // Use our contract to retrieve and mark the adopted pets
         return App.getData();
@@ -45,20 +61,16 @@ App = {
       $(document).on('click', '.button', App.handlePress);
     }, 
   
-    getData: function(account) {
+    getData: function() {
       var buttonInstance;
   
-      App.contracts.Button.deployed().then(function(instance) {
+      App.contracts.TheButton.deployed().then(function(instance) {
         buttonInstance = instance;
   
         return buttonInstance.deadline.call();
       }).then(function(result) {
         deadline = result;
-        // for (i = 0; i < adopters.length; i++) {
-        //   if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
-        //     $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
-        //   }
-        // }
+        //do stuff with the data to update the UI
         console.log(deadline.toNumber());
         return buttonInstance.price.call(); 
       }).then(function(result) {
@@ -74,25 +86,25 @@ App = {
   
       var buttonInstance;
   
-      web3.eth.getAccounts(function(error, accounts) {
-        if (error) {
-          console.log(error);
-        }
+      // web3.eth.getAccounts(function(error, accounts) {
+      //   if (error) {
+      //     console.log(error);
+      //   }
   
-        var account = accounts[0];
+        // var account = accounts[0];
   
-        App.contracts.Button.deployed().then(function(instance) {
+        App.contracts.TheButton.deployed().then(function(instance) {
           buttonInstance = instance;
   
           // Execute adopt as a transaction by sending account
           
-          return App.getData(account);
+          return App.getData();
         }).then(function(result) {
-          return buttonInstance.press({from: account, value: price.toNumber()});
+          return buttonInstance.press({from: userAccount, value: price.toNumber()});
         }).catch(function(err) {
           console.log(err.message);
         });
-      });
+      // });
     }
   
   };
