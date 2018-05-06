@@ -8,7 +8,22 @@ App = {
   
     init: function() {
       // Load data.
-    
+      toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": true,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "swing",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+      };
   
       return App.initWeb3();
     },
@@ -30,12 +45,7 @@ App = {
           // Call a function to update the UI with the new account
           
         }
-      }, 100);
-
-      var dataInterval = setInterval(function() {
-        // Check if account has changed
-        App.getData();
-      }, 1000);
+      }, 500);
   
       return App.initContract();
     },
@@ -49,8 +59,40 @@ App = {
       
     //     // Set the provider for our contract
         App.contracts.TheButton.setProvider(App.web3Provider);
+
+        App.contracts.TheButton.deployed().then(function(instance) {
+          contract = instance;
+          
+          pressedEvent = contract.Pressed();
+          pressedEvent.watch(function(error, result) {
+            if(error) {
+              console.log("Error");
+            }
+            else {
+              if(result.args["by"] == userAccount) {
+                toastr.success("You pressed the button!");
+              } else {
+                toastr.info("By: " + result.args["by"], "Button Pressed");
+              }
+            }
+            App.getData();
+          })
+          // events = contract.allEvents();
+          // events.watch(function(error, result) {
+          //   if(error) {
+          //     console.log("Error");
+          //   }
+          //   else {
+          //     toastr.info(result.event, result.args);
+          //     console.log(result.event + ": ");
+          //     for(key in result.args) {
+          //       console.log("- " + key + ": " + result.args[key]);
+          //     }
+          //   }
+          //   App.getData();
+          // })
+        });
       
-    //     // Use our contract to retrieve and mark the adopted pets
         return App.getData();
       });
   
@@ -101,7 +143,10 @@ App = {
           return App.getData();
         }).then(function(result) {
           return buttonInstance.press({from: userAccount, value: price.toNumber()});
+        }).then(function(result) {
+          toastr.info("Pressing the button...")
         }).catch(function(err) {
+          toastr.error("Problem pressing the button!")
           console.log(err.message);
         });
       // });

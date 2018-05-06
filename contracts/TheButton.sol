@@ -100,9 +100,9 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     uint public totalWon;
 
     uint public startingPrice = 1 finney;
-    uint public priceMultiplier = 103 * 10 **16;//formula for calculating every next price
-    uint32 public n = 1; //increase the price after every n presses
-    uint32 public period = 1 hours;// what's the period for pressing the button
+    uint public priceMultiplier = 105 * 10 **16;//formula for calculating every next price
+    uint32 public n = 3; //increase the price after every n presses
+    uint32 public period = 3 minutes;// what's the period for pressing the button
     uint public devFraction = 10 * ONE_PERCENT_WAD; //10%
     uint public charityFraction = 5 * ONE_PERCENT_WAD; //5%
     address public charityBeneficiary;
@@ -142,7 +142,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     event AccountingParamsChanged(uint devFraction, uint charityFraction);
 
     function press() public payable;
-    function price() public view returns(uint);
+    function price() external view returns(uint);
     function timeLeft() external view returns(uint);
     function jackpot() external view returns(uint);
     function active() public view returns(bool);
@@ -156,12 +156,12 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     }
 
     function withdrawJackpot() public {
-        require(winners[msg.sender].balance > 0);
+        require(winners[msg.sender].balance > 0, "Nothing to withdraw!");
         sendETH(winners[msg.sender], msg.sender, winners[msg.sender].balance);
     }
 
     function donateJackpot() public {
-        require(winners[msg.sender].balance > 0);
+        require(winners[msg.sender].balance > 0, "Nothing to donate!");
         transferETH(winners[msg.sender], charity, winners[msg.sender].balance);
     }
 
@@ -170,7 +170,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     }
 
     function sendCharityETH(bytes callData) public {
-        require(charityBeneficiary != address(0));
+        require(charityBeneficiary != address(0), "Charity address is 0x0!");
         // donation receiver might be a contract, so transact instead of a simple send...
         transact(charity, charityBeneficiary, charity.balance, callData);
     }
@@ -218,6 +218,8 @@ contract TheButton is ButtonBase {
     
     using DSMath for uint;
 
+    bool public stopped;
+
     struct ButtonCampaign {
         uint price;        
         uint priceMultiplier;
@@ -246,27 +248,51 @@ contract TheButton is ButtonBase {
         if (active()) {
             _press(c);
             depositETH(c.total, msg.sender, msg.value);
-        } else {            
+        } else {  
+            require(!stopped, "Contract stopped!");//the contract can be stopped 
             if(!c.finalized) {
                 _finalizeCampaign(c);
-            }
+            } 
             _newCampaign();
             c = campaigns[lastCampaignID];
-                       
+                    
             _press(c);
             depositETH(c.total, msg.sender, msg.value);
         } 
     }
 
     function start() external payable auth {
+        stopped = false;
+        ButtonCampaign storage c;
+
+        if(campaigns.length != 0) {//if there was a past campaign
+            c = campaigns[lastCampaignID];
+            require(c.finalized, "Last campaign not finalized!");//make sure it was finalized
+        }     
+
         if(!active()) {
             _newCampaign();
-            ButtonCampaign storage c = campaigns[lastCampaignID];
+            c = campaigns[lastCampaignID];
             depositETH(c.total, msg.sender, msg.value);
         }
     }
 
-    function price() public view returns(uint) {
+    ///Stopping will only affect new campaigns, not already running ones
+    function stop() external auth {
+        stopped = true;
+    }
+
+    function finalizeLastCampaign() external {
+        ButtonCampaign storage c = campaigns[lastCampaignID];
+        _finalizeCampaign(c);
+    }
+
+    function finalizeCampaign(uint id) external {
+        ButtonCampaign storage c = campaigns[id];
+        _finalizeCampaign(c);
+    }
+
+    function price() external view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].price;
         } else {
@@ -303,18 +329,22 @@ contract TheButton is ButtonBase {
     }
 
     function _press(ButtonCampaign storage c) internal {
-        require(c.deadline >= now);
-        require(msg.value >= c.price);
+        require(c.deadline >= now, "After deadline!");
+        require(msg.value >= c.price, "Not enough value!");
         c.presses += 1;//no need for safe math, as it is not a critical calculation
         c.lastPresser = msg.sender;
+             
+        if(c.presses % c.n == 0) {
+            c.price = c.price.wmul(c.priceMultiplier);
+        }           
+
         emit Pressed(msg.sender, msg.value, c.deadline - uint64(now));
-        c.deadline = uint64(now.add(c.period));        
-        c.price = c.price.wmul(c.priceMultiplier);
+        c.deadline = uint64(now.add(c.period));
     }
 
     function _newCampaign() internal {
-        assert(!active());
-        assert(devFraction.add(charityFraction).add(jackpotFraction()) == ONE_WAD);
+        require(!active(), "A campaign is already running!");
+        require(devFraction.add(charityFraction).add(jackpotFraction()) == ONE_WAD, "Accounting is incorrect!");
         
         uint _campaignID = campaigns.length++;
         ButtonCampaign storage c = campaigns[_campaignID];
@@ -328,17 +358,24 @@ contract TheButton is ButtonBase {
         c.n = n;
         c.period = period;
         c.total.name = keccak256("Jackpot ", lastCampaignID);       
+
         emit Started(msg.value, period, lastCampaignID); 
     }
 
     function _finalizeCampaign(ButtonCampaign storage c) internal {
-        require(c.deadline < now);
-        require(!c.finalized);
+        require(c.deadline < now, "Before deadline!");
+        require(!c.finalized, "Already finalized!");
         uint total = c.total.balance;
+
         transferETH(c.total, winners[c.lastPresser], total.wmul(jackpotFraction()));
         winners[c.lastPresser].name = bytes32(c.lastPresser);
+        totalWon = totalWon.add(total.wmul(jackpotFraction()));
+
         transferETH(c.total, revenue, total.wmul(c.devFraction));
+        totalRevenue = totalRevenue.add(total.wmul(c.devFraction));
+
         transferETH(c.total, charity, total.wmul(c.charityFraction));
+        totalCharity = totalCharity.add(total.wmul(c.charityFraction));
 
         c.finalized = true;
         emit Winrar(c.lastPresser, total.wmul(jackpotFraction()));
