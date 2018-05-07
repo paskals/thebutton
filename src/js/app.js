@@ -1,5 +1,6 @@
 var userAccount;
 var networkID;
+
 App = {
     web3Provider: null,
     contracts: {},
@@ -98,35 +99,63 @@ App = {
           contract = instance;
           
           pressedEvent = contract.Pressed();
+          wonEvent = contract.Winrar();
+          startedEvent = contract.Started();
 
           pressedEvent.watch(function(error, result) {
             if(error) {
               console.log("Error");
             }
             else {
-              if(result.args["by"] == userAccount) {
+              let name = result.args["by"];
+              if(name == userAccount) {
                 toastr.success("You pressed the button!");
-              } else {
-                toastr.info("By: " + result.args["by"].substring(0, 21) + "...", 
+              } else {                
+                if(name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name, 
                 "Button Pressed");
               }
             }
             App.getData();
           })
-          // events = contract.allEvents();
-          // events.watch(function(error, result) {
-          //   if(error) {
-          //     console.log("Error");
-          //   }
-          //   else {
-          //     toastr.info(result.event, result.args);
-          //     console.log(result.event + ": ");
-          //     for(key in result.args) {
-          //       console.log("- " + key + ": " + result.args[key]);
-          //     }
-          //   }
-          //   App.getData();
-          // })
+
+          wonEvent.watch(function(error, result) {
+            if(error) {
+              console.log("Error");
+            }
+            else {
+              let name = result.args["guy"];
+              let jackpot = web3.fromWei(result.args["jackpot"], 'ether');
+              if(name == userAccount) {
+                toastr.success("You won the jackpot of " + jackpot + " ETH!");
+              } else {
+                if(name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name, 
+                "Jackpot won");
+              }
+            }
+            App.getData();
+          })
+
+          startedEvent.watch(function(error, result) {
+            if(error) {
+              console.log("Error");
+            }
+            else {
+              let i = result.args["i"];
+              let period = result.args["period"];
+              let startingETH = web3.fromWei(result.args["startingETH"], 'ether');
+              
+              toastr.info("Starting jackpot: " + startingETH + "ETH, Period: " + period, 'New Campaign started! ID: ' + i);
+              
+            }
+            App.getData();
+          })
+
         });
       
         return App.getData();
@@ -165,7 +194,7 @@ App = {
     handlePress: function(event) {
       event.preventDefault();
       if (!web3.isConnected()){
-        toastr.error("You need a web3 enabled browser to press the button");
+        toastr.error("You need a web3 enabled browser to press the button!");
         return;
       } else {
         if(networkID != "5777") {
@@ -175,17 +204,8 @@ App = {
       }
       var buttonInstance;
   
-      // web3.eth.getAccounts(function(error, accounts) {
-      //   if (error) {
-      //     console.log(error);
-      //   }
-  
-        // var account = accounts[0];
-  
         App.contracts.TheButton.deployed().then(function(instance) {
           buttonInstance = instance;
-  
-          // Execute adopt as a transaction by sending account
           
           return App.getData();
         }).then(function(result) {
@@ -202,7 +222,6 @@ App = {
           toastr.error("Problem pressing the button!")
           console.log(err.message);
         });
-      // });
     }
   
   };
