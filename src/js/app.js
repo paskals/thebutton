@@ -1,6 +1,8 @@
 var userAccount;
 var networkID;
 
+var animationID;
+
 App = {
     web3Provider: null,
     contracts: {},
@@ -26,7 +28,10 @@ App = {
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
       };
-  
+      setupTimer();
+      
+      animationID = requestAnimationFrame(drawTimer);
+
       return App.initWeb3();
     },
   

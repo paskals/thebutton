@@ -80,12 +80,20 @@
             
         <div class="content">
             <div class="overlay">
-                    <div class="spacer-vertical"></div>
+                <div class="spacer-vertical"></div>
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 ">
-                            
-                            <div class="timer-group">
+                            <div class="button">
+                                <div class="outer">
+                                    <div class="height"><div class="inner"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <canvas id="timerCanvas">
+                            </canvas>
+
+                            <!-- <div class="timer-group">
                                 <div class="timer hour">
                                   <div class="hand"><span></span></div>
                                   <div class="hand"><span></span></div>
@@ -105,10 +113,9 @@
                                                   </div>
                                                 </div>
                                             </div>
-                              <!--     <h2>A CSS Chronograph</h2>
-                                  <p id="lazy">00:00:00</p>   -->
+                              
                                 </div>
-                              </div>
+                              </div> -->
 
                             
 
@@ -153,7 +160,7 @@
 
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
-        <script src="js/button.js"></script>
+        <script src="js/timer.js"></script>
         <script src="js/app.js"></script>
         <script src="js/truffle-contract.js"></script>
         <script src="js/web3.min.js"></script>

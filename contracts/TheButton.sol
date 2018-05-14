@@ -50,6 +50,7 @@ contract SimpleAccounting {
     internal noReentrance 
     {
         require(a.balance >= _value);
+        require(_to != address(0));
         
         a.balance = a.balance.sub(_value);
         totalETH = totalETH.sub(_value);
@@ -63,6 +64,7 @@ contract SimpleAccounting {
     internal noReentrance 
     {
         require(a.balance >= _value);
+        require(_to != address(0));
         
         a.balance = a.balance.sub(_value);
         totalETH = totalETH.sub(_value);
@@ -280,7 +282,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     }
 
     function sendCharityETH(bytes callData) public auth {
-        require(charityBeneficiary != address(0), "Charity address is 0x0!");
+        // require(charityBeneficiary != address(0), "Charity address is 0x0!");
         // donation receiver might be a contract, so transact instead of a simple send...
         transact(charity, charityBeneficiary, charity.balance, callData);
     }

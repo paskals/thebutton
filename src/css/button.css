@@ -7,6 +7,12 @@
   margin: auto;
 }
 
+#timerCanvas {
+  
+  /* -webkit-transform: perspective(500px) rotateX(35deg);
+  -moz-transform: perspective(500px) rotateX(35deg); */
+}
+
 .button .outer {
   position: relative;
   width: 100%;
@@ -113,23 +119,24 @@
   background: linear-gradient(top, #1d7d12 0%,#4fd342 100%);
   /* W3C */
 }
+
 /* timer stuff */
-@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
+/*@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);*/
 * {
   box-sizing: border-box;
 }
 
-body {
-  padding: 20px;
-}
-
+/*BODY
+{
+	padding: 20px;
+}*/
 .timer-group {
   height: 400px;
   margin: 0 auto;
   position: relative;
   width: 400px;
-  -webkit-transform: perspective(500px) rotateX(30deg);
-  -moz-transform: perspective(500px) rotateX(3deg);
+  /*-webkit-transform: perspective(500px) rotateX(30deg);*/
+  /*-moz-transform: perspective(500px) rotateX(3deg);*/
 }
 
 .timer {
@@ -141,7 +148,6 @@ body {
 }
 
 .timer:after {
-  background: #111 url(https://codepen.io/images/classy_fabric.png);
   border-radius: 50%;
   content: "";
   display: block;
@@ -150,6 +156,7 @@ body {
   position: absolute;
   width: 80px;
   top: 10px;
+  background-color: #000000;
 }
 
 .timer .hand {
@@ -179,7 +186,7 @@ body {
 }
 
 .timer .hand span {
-  animation-duration: 4s;
+  animation-duration: 1s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
