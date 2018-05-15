@@ -2,9 +2,23 @@
   height: 180px;
   width: 180px;
   top: 50%;
-  left: 50%;
+  left: auto;
   cursor: pointer;
   margin: auto;
+}
+
+#timer-text {
+  -webkit-transform: perspective(500px) rotateX(30deg);
+  -moz-transform: perspective(500px) rotateX(30deg);
+  color: white;
+  position: absolute;
+  left: auto;
+  top: calc(50% + 125px);
+  font-family: Monospace;
+  font-size: 25px;
+  text-align: center;
+  width: 100%;
+  margin: 0 0 0 -15px;
 }
 
 #timerCanvas {
@@ -16,8 +30,6 @@
 }
 
 .timer-button {
-  /* -webkit-transform: perspective(500px) rotateX(35deg);
-  -moz-transform: perspective(500px) rotateX(35deg); */
 }
 
 .button .outer {

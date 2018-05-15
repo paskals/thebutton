@@ -1,4 +1,5 @@
 var canvas;
+var timerText;
 var ctx;
 var deadline;
 
@@ -27,12 +28,13 @@ createHiDPICanvas = function (w, h, ratio) {
 
 function setupTimer() {
   var d = new Date();
-  deadline = new Date(d.getTime() + 30*60*1000);
+  deadline = new Date(d.getTime() + 1*60*1000);
 
   canvas = document.getElementById("timerCanvas");
   createHiDPICanvas(350, 350);
 
   ctx = canvas.getContext("2d");
+  timerText = document.getElementById("timer-text");
   // ctx.width = 600;
   // ctx.height = 600;
   // ctx.textAlign(CENTER,CENTER);
@@ -52,6 +54,7 @@ function drawTimer() {
   // ctx.strokeRect();
   var now = new Date();
   var milli = 0, p_milli = 0, s = 0, p_s = 0, m = 0, p_m = 0, h = 0, p_h = 0;
+  
 
   if(now.getTime() < deadline.getTime()) {
     milli = deadline.getTime() - now.getTime();
@@ -72,8 +75,13 @@ function drawTimer() {
   // ctx.ellipse(0,0,170,170);  
   // // text
   // ctx.fill(196);
-  // ctx.textStyle = "BOLD";
-  // ctx.fillText(("00"+parseInt(h)).substr(-2) + ":" + ("00"+parseInt(m)).substr(-2) + ":" + ("00"+parseInt(s)).substr(-2),0,0);
+  ctx.fillStyle = '#fcfcfc';
+  ctx.font="20px Audiowide";
+  timerText.innerHTML = ("00"+parseInt(h)).substr(-2) + ":" + ("00"+parseInt(m)).substr(-2) 
+    + ":" + ("00"+parseInt(s)).substr(-2) + "." + ("00"+parseInt(p_milli*100)).substr(-2);
+  // ctx.fillText(("00"+parseInt(h)).substr(-2) + ":" + ("00"+parseInt(m)).substr(-2) 
+  //   + ":" + ("00"+parseInt(s)).substr(-2) + "." + ("00"+parseInt(p_milli*100)).substr(-2),
+  //   100,330);
 
   // circles  
 
