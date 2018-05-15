@@ -8,5 +8,5 @@ module.exports = function(deployer) {
     .then(function(instance) {
     button = instance;})
     .then(function() {
-      return button.start();});
+      return button.start({value: web3.toWei(50, "ether")});});
 };

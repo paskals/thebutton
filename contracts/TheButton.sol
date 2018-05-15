@@ -101,6 +101,8 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     uint public totalCharity;
     uint public totalWon;
 
+    uint public totalPresses;
+
     uint public startingPrice = 1 finney;
     uint internal _priceMultiplier = 105 * 10 **16;
     uint32 internal _n = 3; //increase the price after every n presses
@@ -178,6 +180,20 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     function () public payable {
         press();
     }
+
+    function latestData() external view returns(uint price, uint jackpot, uint charity, uint64 deadline, uint presses) {
+        price = this.price();
+        jackpot = this.jackpot();
+        charity = this.charity();
+        deadline = this.deadline();
+        presses = this.presses();
+    }
+
+    function totalsData() external view returns(uint _totalWon, uint _totalCharity, uint _totalPresses) {
+        _totalWon = totalWon;
+        _totalCharity = totalCharity;
+        _totalPresses = this.totalPresses();
+    }
    
     function price() external view returns(uint) {
         if(active()) {
@@ -249,10 +265,34 @@ contract ButtonBase is DSAuth, SimpleAccounting {
 
     function jackpot() external view returns(uint) {
         if(active()) {
-            campaigns[lastCampaignID].total.balance.wmul(campaigns[lastCampaignID].jackpotFraction);
+            return campaigns[lastCampaignID].total.balance.wmul(campaigns[lastCampaignID].jackpotFraction);
         } else {
-            return nextCampaign.balance;
+            return nextCampaign.balance.wmul(_jackpotFraction);
         }
+    }
+
+    function presses() external view returns(uint) {
+        if(active()) {
+            return campaigns[lastCampaignID].presses;
+        } else {
+            return 0;
+        }
+    }
+
+    function totalPresses() external view returns(uint) {
+        return totalPresses.add(this.presses());
+    }
+
+    function charity() external view returns(uint) {
+        if(active()) {
+            return campaigns[lastCampaignID].total.balance.wmul(campaigns[lastCampaignID].charityFraction);
+        } else {
+            return nextCampaign.balance.wmul(_charityFraction);
+        }
+    }
+
+    function totalCharity() external view returns(uint) {
+        return totalCharity.add(this.charity());
     }
 
     function active() public view returns(bool) {
@@ -435,6 +475,8 @@ contract TheButton is ButtonBase {
         totalCharity = totalCharity.add(total.wmul(c.charityFraction));
 
         transferETH(c.total, nextCampaign, total.wmul(c.newCampaignFraction));
+
+        totalPresses = totalPresses.add(c.presses);
 
         c.finalized = true;
         emit Winrar(c.lastPresser, total.wmul(c.jackpotFraction));

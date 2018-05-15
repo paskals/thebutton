@@ -14,11 +14,12 @@
   position: absolute;
   left: auto;
   top: calc(50% + 125px);
-  font-family: Monospace;
+  /*font-family: Monospace;*/
   font-size: 25px;
   text-align: center;
   width: 100%;
   margin: 0 0 0 -15px;
+  text-shadow: 0px 2px 1px rgba(255, 255, 255, 0.540);
 }
 
 #timerCanvas {

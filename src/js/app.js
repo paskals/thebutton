@@ -6,10 +6,16 @@ var animationID;
 App = {
     web3Provider: null,
     contracts: {},
-    price: null,
-    deadline: null,
-    
-  
+    price: 0,
+    dead: null,
+    jackpot: 0,
+    charity: 0,
+    presses: 0,
+
+    priceElement: null,    
+    jackpotElement: null,
+    pressesElement: null,
+
     init: function() {
       // Load data.
       toastr.options = {
@@ -31,6 +37,9 @@ App = {
       setupTimer();
       
       animationID = requestAnimationFrame(drawTimer);
+      priceElement = document.getElementById("price"); 
+      jackpotElement = document.getElementById("jackpot");
+      pressesElement = document.getElementById("press-count");
 
       return App.initWeb3();
     },
@@ -182,20 +191,40 @@ App = {
       App.contracts.TheButton.deployed().then(function(instance) {
         buttonInstance = instance;
   
-        return buttonInstance.deadline.call();
+        return buttonInstance.latestData.call();
       }).then(function(result) {
-        deadline = result;
-        //do stuff with the data to update the UI
-        console.log(deadline.toNumber());
+        
+        price = result[0];
+        jackpot = result[1];
+        charity = result[2];
+        dead = result[3].c[0];
+        presses = result[4].toNumber();
+        
+        
+        
+        console.log(dead);
+        console.log(presses);
+        console.log(price);
+        console.log(jackpot);
+        console.log(charity);
         return buttonInstance.price.call(); 
-      }).then(function(result) {
-        price = result;
-        console.log(price.toNumber());
+      }).then(function() {
+        setDeadline(new Date(dead * 1000));
+        App.setUIData();
       }).catch(function(err) {
         console.log(err.message);
       });
     },
   
+    setUIData: function() {
+      let jack = web3.fromWei(jackpot, 'ether');
+      let pri = web3.fromWei(price, 'ether');
+
+      jackpotElement.innerHTML = jack;
+      priceElement.innerHTML = pri;
+      pressesElement.innerHTML = presses;
+    },
+
     handlePress: function(event) {
       event.preventDefault();
       if (!web3.isConnected()){
@@ -216,7 +245,7 @@ App = {
         }).then(function(result) {
           if(userAccount != null) {
             toastr.info("Pressing the button...")
-            return buttonInstance.press({from: userAccount, value: price.toNumber()});
+            return buttonInstance.press({from: userAccount, value: price});
           } else {
             toastr.warning("You need to unlock your account!");
           } 
