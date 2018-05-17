@@ -28,7 +28,7 @@ createHiDPICanvas = function (w, h, ratio) {
 
 function setupTimer() {
   var d = new Date();
-  deadline = new Date(d.getTime() + 1*60*1000);
+  deadline = new Date(d.getTime());// + 1*60*1000);
 
   canvas = document.getElementById("timerCanvas");
   createHiDPICanvas(350, 350);
@@ -45,7 +45,25 @@ function setupTimer() {
 }
 
 function setDeadline(d) {
-  deadline = d;
+  if(d.getTime() == deadline.getTime()) {
+    return;
+  }
+  let duration = 10000;
+  let fps = 60;
+  let delta = d.getTime() - deadline.getTime();
+  let step = delta/(duration/fps);
+  
+  var interval = setInterval(function () {
+    if(deadline.getTime() < d.getTime()) {
+      deadline = new Date(deadline.getTime() + step);
+    } else {
+      deadline = d;
+      clearInterval(interval);
+    }
+
+  }, 1000/fps);
+
+  
 }
 
 function drawTimer() {

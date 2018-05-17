@@ -126,9 +126,7 @@ h1 {
     color: #FFF;
 }
 h2 {
-    font-size: 2.5rem;
-    line-height: 3rem;
-    margin-bottom: 35px;
+    margin-bottom: 5px;
     font-family: 'latobold';
 }
 h3 {
@@ -153,7 +151,7 @@ h6 {
     margin-bottom: 0.9rem;
 }
 p {
-    line-height: 1.375rem;
+    line-height: 1;
     font-size: 0.875rem;
 }
 p:last-child {
@@ -512,12 +510,10 @@ input::-ms-input-placeholder {
 /*home section*/
 .home {
     background: #000000;
-    margin-top: 80px;
-    padding: 0 0 20px 0;
+    padding: 60px 0 20px;
 }
 .smaller-statistic {
-    font-weight: normal;
-    font-size: 30px;
+    font-size: 25px;
 }
 .home .main_home {
     padding-top: 250px;
@@ -733,15 +729,13 @@ input::-ms-input-placeholder {
 }
 /*counter section css*/
 .counter {
-    background-size: cover;
-    height: 380px;
     overflow: hidden;
 }
 .counter .main_counter {
     padding: 60px 30px 0;
 }
 .counter .main_counter .single_counter_right {
-    margin-top: 30px;
+    margin-top: 15px;
     overflow: hidden;
     display: block;
 }
@@ -758,10 +752,28 @@ input::-ms-input-placeholder {
     line-height: 1;
     display: inline-block;
 }
+.counter_right {
+    margin-bottom: 5px;
+    line-height: 1;
+    height: auto;
+}
 .currency {
     font-family: Helvetica;
     display: inline-block;
-    margin: 0 5px 0 0;
+    margin: 0 10px 0 0;
+}
+.total-statistic {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 100;
+}
+.totals_counter {
+    color: #FDFDFD;
+    padding: 0px 30px 0;
+    margin-top: 80px;
+    /*overflow: hidden;*/
+    /*display: block;*/
+    margin-bottom: 60px;
 }
 .counter .main_counter .single_counter_right p {
     color: #FEFEFE;
@@ -818,7 +830,7 @@ input::-ms-input-placeholder {
 /*footer section*/
 .footer {
     background: #1F1F1F;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
     height: 60px;

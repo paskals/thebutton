@@ -39,6 +39,7 @@ App = {
       animationID = requestAnimationFrame(drawTimer);
       priceElement = document.getElementById("price"); 
       jackpotElement = document.getElementById("jackpot");
+      charityElement = document.getElementById("charity");
       pressesElement = document.getElementById("press-count");
 
       return App.initWeb3();
@@ -197,10 +198,8 @@ App = {
         price = result[0];
         jackpot = result[1];
         charity = result[2];
-        dead = result[3].c[0];
+        dead = result[3];
         presses = result[4].toNumber();
-        
-        
         
         console.log(dead);
         console.log(presses);
@@ -217,16 +216,24 @@ App = {
     },
   
     setUIData: function() {
-      let jack = web3.fromWei(jackpot, 'ether');
-      let pri = web3.fromWei(price, 'ether');
+      let jack = formatETHString(jackpot);
+      let pri = formatETHString(price);
+      let char = formatETHString(charity);
 
-      jackpotElement.innerHTML = jack;
-      priceElement.innerHTML = pri;
-      pressesElement.innerHTML = presses;
+      setElementValue('jackpot', jack);
+      setElementValue('price', pri);
+      setElementValue('press-count', presses);
+      setElementValue('charity', char);
+      // priceElement.innerHTML = pri;
+      // pressesElement.innerHTML = presses;
+      // charityElement.innerHTML = char;
     },
+
+    
 
     handlePress: function(event) {
       event.preventDefault();
+    
       if (!web3.isConnected()){
         toastr.error("You need a web3 enabled browser to press the button!");
         return;
@@ -265,4 +272,18 @@ App = {
       App.init();
     });
   });
-  
+
+  function formatETHString(n) {
+    n = web3.fromWei(n, 'ether');
+    var withCommas = Number(n).toLocaleString(undefined, {maximumFractionDigits:4});
+    return withCommas;
+  };  
+
+  function setElementValue(element, value) {
+    if($('#' + element).text() != value.toString()){
+    var duration = 250;
+      $('#' + element).fadeOut(duration, function() {
+        $(this).text(value).fadeIn(duration);
+      });
+    }
+  }

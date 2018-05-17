@@ -462,23 +462,23 @@ contract TheButton is ButtonBase {
     function _finalizeCampaign(ButtonCampaign storage c) internal {
         require(c.deadline < now, "Before deadline!");
         require(!c.finalized, "Already finalized!");
-        uint total = c.total.balance;
+        uint totalBalance = c.total.balance;
 
-        transferETH(c.total, winners[c.lastPresser], total.wmul(c.jackpotFraction));
+        transferETH(c.total, winners[c.lastPresser], totalBalance.wmul(c.jackpotFraction));
         winners[c.lastPresser].name = bytes32(c.lastPresser);
-        totalWon = totalWon.add(total.wmul(c.jackpotFraction));
+        totalWon = totalWon.add(totalBalance.wmul(c.jackpotFraction));
 
-        transferETH(c.total, revenue, total.wmul(c.devFraction));
-        totalRevenue = totalRevenue.add(total.wmul(c.devFraction));
+        transferETH(c.total, revenue, totalBalance.wmul(c.devFraction));
+        totalRevenue = totalRevenue.add(totalBalance.wmul(c.devFraction));
 
-        transferETH(c.total, charity, total.wmul(c.charityFraction));
-        totalCharity = totalCharity.add(total.wmul(c.charityFraction));
+        transferETH(c.total, charity, totalBalance.wmul(c.charityFraction));
+        totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
 
-        transferETH(c.total, nextCampaign, total.wmul(c.newCampaignFraction));
+        transferETH(c.total, nextCampaign, totalBalance.wmul(c.newCampaignFraction));
 
         totalPresses = totalPresses.add(c.presses);
 
         c.finalized = true;
-        emit Winrar(c.lastPresser, total.wmul(c.jackpotFraction));
+        emit Winrar(c.lastPresser, totalBalance.wmul(c.jackpotFraction));
     }
 }
