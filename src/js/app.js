@@ -12,9 +12,9 @@ App = {
     charity: 0,
     presses: 0,
 
-    priceElement: null,    
-    jackpotElement: null,
-    pressesElement: null,
+    // priceElement: null,    
+    // jackpotElement: null,
+    // pressesElement: null,
 
     init: function() {
       // Load data.

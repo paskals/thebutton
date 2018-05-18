@@ -158,14 +158,31 @@
                         </div>
                     </div>
                 
-            </section>       
-
+            </section>    
+            
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>   
+            <script>
+                $(document).ready(function(){
+                    $('#show-hide').click(function(){
+                        $('#totals').toggle();
+                    });
+                });
+            </script>
+            
             <section id="totals-counter" class="counter">
                 <div class="overlay">
                     <div class="container">
                         <div class="row">
+                            
                             <div class="totals_counter sections text-center">
+
+                                <div class="show-hide">
+                                    <a href="#" id="show-hide">Show more...</a>
+                                </div>
+                                
+                                <div id="totals" hidden>
                                 <div class="row">
+                                    
                                     <div class="col-sm-4 col-xs-4">
                                         <div class="counter_right wow fadeInRight" data-wow-duration="1s">
                                             <!-- <i class="fa fa-line-chart"></i> -->
@@ -189,7 +206,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+                            </div>
                             </div>
                         </div>
                     </div>

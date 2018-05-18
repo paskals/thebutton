@@ -48,7 +48,7 @@ function setDeadline(d) {
   if(d.getTime() == deadline.getTime()) {
     return;
   }
-  let duration = 10000;
+  let duration = 5000;
   let fps = 60;
   let delta = d.getTime() - deadline.getTime();
   let step = delta/(duration/fps);
