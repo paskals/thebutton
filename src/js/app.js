@@ -1,4 +1,6 @@
 var userAccount;
+var networkID;
+
 App = {
     web3Provider: null,
     contracts: {},
@@ -36,22 +38,55 @@ App = {
         // If no injected web3 instance is detected, fall back to Ganache
         App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
       }
+      
       web3 = new Web3(App.web3Provider);
 
-      var accountInterval = setInterval(function() {
-        // Check if account has changed
-        if (web3.eth.accounts[0] !== userAccount) {
-          userAccount = web3.eth.accounts[0];
-          // Call a function to update the UI with the new account
-          
+      web3.version.getNetwork((err, netId) => {
+        networkID = netId;
+        switch (netId) {
+          case "1":
+            console.log('This is mainnet')
+            break
+          case "2":
+            console.log('This is the deprecated Morden test network.')
+            break
+          case "3":
+            console.log('This is the ropsten test network.')
+            break
+          case "4":
+            networkName = "Rinkeby";
+            break;
+          case "42":
+            networkName = "Kovan";
+            break;
+          case "5777":
+            networkName = "Ganache";
+            break;
+          default:
+            console.log('This is an unknown network.')
         }
+      })
+
+      var accountInterval = setInterval(function() {
+        if (web3.isConnected()) {
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+          }
+        }else {
+            clearInterval(accountInterval);
+          }
       }, 500);
+    
   
       return App.initContract();
     },
   
     //init contracts
     initContract: function() {
+      // if (!web3.isConnected()){
+      //   return;
+      // }
       $.getJSON('TheButton.json', function(data) {
     //     // Get the necessary contract artifact file and instantiate it with truffle-contract
         var TheButtonArtifact = data;
@@ -64,33 +99,63 @@ App = {
           contract = instance;
           
           pressedEvent = contract.Pressed();
+          wonEvent = contract.Winrar();
+          startedEvent = contract.Started();
+
           pressedEvent.watch(function(error, result) {
             if(error) {
               console.log("Error");
             }
             else {
-              if(result.args["by"] == userAccount) {
+              let name = result.args["by"];
+              if(name == userAccount) {
                 toastr.success("You pressed the button!");
-              } else {
-                toastr.info("By: " + result.args["by"], "Button Pressed");
+              } else {                
+                if(name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name, 
+                "Button Pressed");
               }
             }
             App.getData();
           })
-          // events = contract.allEvents();
-          // events.watch(function(error, result) {
-          //   if(error) {
-          //     console.log("Error");
-          //   }
-          //   else {
-          //     toastr.info(result.event, result.args);
-          //     console.log(result.event + ": ");
-          //     for(key in result.args) {
-          //       console.log("- " + key + ": " + result.args[key]);
-          //     }
-          //   }
-          //   App.getData();
-          // })
+
+          wonEvent.watch(function(error, result) {
+            if(error) {
+              console.log("Error");
+            }
+            else {
+              let name = result.args["guy"];
+              let jackpot = web3.fromWei(result.args["jackpot"], 'ether');
+              if(name == userAccount) {
+                toastr.success("You won the jackpot of " + jackpot + " ETH!");
+              } else {
+                if(name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name, 
+                "Jackpot won");
+              }
+            }
+            App.getData();
+          })
+
+          startedEvent.watch(function(error, result) {
+            if(error) {
+              console.log("Error");
+            }
+            else {
+              let i = result.args["i"];
+              let period = result.args["period"];
+              let startingETH = web3.fromWei(result.args["startingETH"], 'ether');
+              
+              toastr.info("Starting jackpot: " + startingETH + "ETH, Period: " + period, 'New Campaign started! ID: ' + i);
+              
+            }
+            App.getData();
+          })
+
         });
       
         return App.getData();
@@ -104,6 +169,9 @@ App = {
     }, 
   
     getData: function() {
+      if (!web3.isConnected()){
+        return;
+      }
       var buttonInstance;
   
       App.contracts.TheButton.deployed().then(function(instance) {
@@ -125,31 +193,35 @@ App = {
   
     handlePress: function(event) {
       event.preventDefault();
-  
+      if (!web3.isConnected()){
+        toastr.error("You need a web3 enabled browser to press the button!");
+        return;
+      } else {
+        if(networkID != "5777") {
+          toastr.warning("You're not connected to the TEST Ethereum network!");
+          return;
+        }
+      }
       var buttonInstance;
-  
-      // web3.eth.getAccounts(function(error, accounts) {
-      //   if (error) {
-      //     console.log(error);
-      //   }
-  
-        // var account = accounts[0];
   
         App.contracts.TheButton.deployed().then(function(instance) {
           buttonInstance = instance;
-  
-          // Execute adopt as a transaction by sending account
           
           return App.getData();
         }).then(function(result) {
-          return buttonInstance.press({from: userAccount, value: price.toNumber()});
+          if(userAccount != null) {
+            toastr.info("Pressing the button...")
+            return buttonInstance.press({from: userAccount, value: price.toNumber()});
+          } else {
+            toastr.warning("You need to unlock your account!");
+          } 
         }).then(function(result) {
-          toastr.info("Pressing the button...")
+          //success (should be logged in the event handling)
+          // toastr.success("You pressed the button!");
         }).catch(function(err) {
           toastr.error("Problem pressing the button!")
           console.log(err.message);
         });
-      // });
     }
   
   };
