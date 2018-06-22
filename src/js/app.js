@@ -11,6 +11,10 @@ App = {
     jackpot: 0,
     charity: 0,
     presses: 0,
+    totalWon: 0,
+    totalCharity: 0,
+    totalPresses: 0,
+
 
     // priceElement: null,    
     // jackpotElement: null,
@@ -51,7 +55,7 @@ App = {
         App.web3Provider = web3.currentProvider;
       } else {
         // If no injected web3 instance is detected, fall back to Ganache
-        App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
+        App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
       }
       
       web3 = new Web3(App.web3Provider);
@@ -199,16 +203,19 @@ App = {
         jackpot = result[1];
         charity = result[2];
         dead = result[3];
-        presses = result[4].toNumber();
+        presses = result[4];
         
         console.log(dead);
         console.log(presses);
         console.log(price);
         console.log(jackpot);
         console.log(charity);
-        return buttonInstance.price.call(); 
-      }).then(function() {
+        return buttonInstance.totalsData.call(); 
+      }).then(function(result) {
         setDeadline(new Date(dead * 1000));
+        totalWon = result[0];
+        totalCharity = result[1];
+        totalPresses = result[2];
         App.setUIData();
       }).catch(function(err) {
         console.log(err.message);
@@ -219,14 +226,16 @@ App = {
       let jack = formatETHString(jackpot);
       let pri = formatETHString(price);
       let char = formatETHString(charity);
+      let totWon = formatETHString(totalWon);
+      let totChar = formatETHString(totalCharity);
 
       setElementValue('jackpot', jack);
       setElementValue('price', pri);
       setElementValue('press-count', presses);
       setElementValue('charity', char);
-      // priceElement.innerHTML = pri;
-      // pressesElement.innerHTML = presses;
-      // charityElement.innerHTML = char;
+      setElementValue('totalWon', totWon);
+      setElementValue('totalCharity', totChar);
+      setElementValue('totalPresses', totalPresses);
     },
 
     

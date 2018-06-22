@@ -1,94 +1,7 @@
 pragma solidity^0.4.21;
 
 import "./lib/ds-auth/auth.sol";
-import "./lib/DSMathLib.sol";
-
-contract SimpleAccounting {
-
-    using DSMath for uint;
-
-    bool internal _in;
-    
-    modifier noReentrance() {
-        require(!_in);
-        _in = true;
-        _;
-        _in = false;
-    }
-    
-    uint public totalETH;
-
-    struct Account {
-        uint balance;
-        bytes32 name;
-    }
-
-    Account base = Account({
-        balance: 0,
-        name: "Base"
-    });
-
-    // event ETHDeposited(bytes32 indexed account, address indexed from, uint value);
-    event ETHSent(bytes32 indexed account, address indexed to, uint value);
-    event ETHTransferred(bytes32 indexed fromAccount, bytes32 indexed toAccount, uint value);
-
-    function () public payable {
-        depositETH(base, msg.sender, msg.value);
-    }
-
-    function baseETHBalance() public constant returns(uint) {
-        return base.balance;
-    }
-
-    function depositETH(Account storage a, address _from, uint _value) internal {
-        a.balance = a.balance.add(_value);
-        totalETH = totalETH.add(_value);
-        // emit ETHDeposited(a.name, _from, _value); remove deposit events to save gas
-    }
-
-    function sendETH(Account storage a, address _to, uint _value) 
-    internal noReentrance 
-    {
-        require(a.balance >= _value);
-        require(_to != address(0));
-        
-        a.balance = a.balance.sub(_value);
-        totalETH = totalETH.sub(_value);
-
-        _to.transfer(_value);
-        
-        emit ETHSent(a.name, _to, _value);
-    }
-
-    function transact(Account storage a, address _to, uint _value, bytes data) 
-    internal noReentrance 
-    {
-        require(a.balance >= _value);
-        require(_to != address(0));
-        
-        a.balance = a.balance.sub(_value);
-        totalETH = totalETH.sub(_value);
-
-        require(_to.call.value(_value)(data));
-        
-        emit ETHSent(a.name, _to, _value);
-    }
-
-    function transferETH(Account storage _from, Account storage _to, uint _value) 
-    internal 
-    {
-        require(_from.balance >= _value);
-        _from.balance = _from.balance.sub(_value);
-        _to.balance = _to.balance.add(_value);
-        emit ETHTransferred(_from.name, _to.name, _value);
-    }
-
-    function balance(Account storage toAccount,  uint _value) internal {
-        require(address(this).balance >= totalETH.add(_value));
-        depositETH(toAccount, 0x0, _value);
-    }
-
-}
+import "./accounting/contracts/Accounting.sol";
 
 contract ButtonBase is DSAuth, SimpleAccounting {
 
@@ -181,10 +94,10 @@ contract ButtonBase is DSAuth, SimpleAccounting {
         press();
     }
 
-    function latestData() external view returns(uint price, uint jackpot, uint charity, uint64 deadline, uint presses) {
+    function latestData() external view returns(uint price, uint jackpot, uint char, uint64 deadline, uint presses) {
         price = this.price();
         jackpot = this.jackpot();
-        charity = this.charity();
+        char = this.charity();
         deadline = this.deadline();
         presses = this.presses();
     }
@@ -322,8 +235,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     }
 
     function sendCharityETH(bytes callData) public auth {
-        // require(charityBeneficiary != address(0), "Charity address is 0x0!");
-        // donation receiver might be a contract, so transact instead of a simple send...
+        // donation receiver might be a contract, so transact instead of a simple send
         transact(charity, charityBeneficiary, charity.balance, callData);
     }
 
@@ -343,7 +255,7 @@ contract ButtonBase is DSAuth, SimpleAccounting {
     function setAccountingParams(uint _devF, uint _charityF, uint _newCampF) public 
     auth
     limited(_devF.add(_charityF).add(_newCampF), 0, ONE_WAD) // up to 100% - charity fraction could be set to 100% for special occasions
-    timeLimited(4 weeks) { // can only be changed once every 4 weeks
+    timeLimited(2 weeks) { // can only be changed once every 4 weeks
         require(_charityF <= ONE_WAD); // charity fraction can be up to 100%
         require(_devF <= 20 * ONE_PERCENT_WAD); //can't set the dev fraction to more than 20%
         require(_newCampF <= 10 * ONE_PERCENT_WAD);//less than 10%
@@ -454,7 +366,7 @@ contract TheButton is ButtonBase {
         c.deadline = uint64(now.add(_period));
         c.n = _n;
         c.period = _period;
-        c.total.name = keccak256("Jackpot ", lastCampaignID);       
+        c.total.name = keccak256(abi.encodePacked("Jackpot ", lastCampaignID));       
         transferETH(nextCampaign, c.total, nextCampaign.balance);
         emit Started(c.total.balance, _period, lastCampaignID); 
     }

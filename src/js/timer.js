@@ -3,6 +3,8 @@ var timerText;
 var ctx;
 var deadline;
 
+var arcOffset = 1.5;
+
 var PIXEL_RATIO = (function () {
   var ctx = document.createElement("canvas").getContext("2d"),
     dpr = window.devicePixelRatio || 1,
@@ -45,9 +47,13 @@ function setupTimer() {
 }
 
 function setDeadline(d) {
+  
   if(d.getTime() == deadline.getTime()) {
     return;
   }
+
+  cancelAnimationFrame(animationID);
+
   let duration = 5000;
   let fps = 60;
   let delta = d.getTime() - deadline.getTime();
@@ -71,70 +77,82 @@ function drawTimer() {
   // ctx.translate(ctx.width/2, ctx.height/2);
   // ctx.strokeRect();
   var now = new Date();
-  var milli = 0, p_milli = 0, s = 0, p_s = 0, m = 0, p_m = 0, h = 0, p_h = 0;
-  
+  let result = {
+    p_milli : 0,
+    p_s : 0,
+    p_m : 0,
+    p_h : 0,
+    s : 0,
+    m : 0,
+    h : 0
+  };
 
   if(now.getTime() < deadline.getTime()) {
-    milli = deadline.getTime() - now.getTime();
-    p_milli = (milli%1000) / 1000;
-    s = ((milli/1000)%60); //  + p_milli;
-    p_s = s / 60;
-    m = ((milli/(60*1000))%60); //  + p_s;
-    p_m = m / 60;
-    h = ((milli/(60*60*1000))%24); // + p_m;
-    p_h = h / 24;
+    result = getTimerFractions(now.getTime(), deadline.getTime());
   }
 
   ctx.clearRect(0,0,350,350);
 
-  // ctx.background(0);  
-  // ctx.noStroke;
-  // ctx.fill();
-  // ctx.ellipse(0,0,170,170);  
-  // // text
-  // ctx.fill(196);
   ctx.fillStyle = '#fcfcfc';
   ctx.font="20px Audiowide";
-  timerText.innerHTML = ("00"+parseInt(h)).substr(-2) + ":" + ("00"+parseInt(m)).substr(-2) 
-    + ":" + ("00"+parseInt(s)).substr(-2) + "." + ("00"+parseInt(p_milli*100)).substr(-2);
-  // ctx.fillText(("00"+parseInt(h)).substr(-2) + ":" + ("00"+parseInt(m)).substr(-2) 
-  //   + ":" + ("00"+parseInt(s)).substr(-2) + "." + ("00"+parseInt(p_milli*100)).substr(-2),
-  //   100,330);
+  timerText.innerHTML = ("00"+parseInt(result.h)).substr(-2) + ":" + ("00"+parseInt(result.m)).substr(-2) 
+    + ":" + ("00"+parseInt(result.s)).substr(-2) + "." + ("00"+parseInt(result.p_milli*100)).substr(-2);
+
 
   // circles  
 
   ctx.strokeStyle = 'rgb(180,60,160)';
   ctx.lineWidth = 8;
   ctx.beginPath();
-  ctx.arc(175, 175, 100, Math.PI * 1.5,
-    (Math.PI * 2) * (p_h) - Math.PI * 0.5
+  ctx.arc(175, 175, 100, Math.PI * arcOffset,
+    getArcEnd(result.p_h)
   );
   ctx.stroke();
 
   ctx.strokeStyle = 'rgb(180,160,250)';
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(175, 175, 111, Math.PI * 1.5,
-    (Math.PI * 2) * (p_m) - Math.PI * 0.5
+  ctx.arc(175, 175, 111, Math.PI * arcOffset,
+    getArcEnd(result.p_m)
   );
   ctx.stroke();
 
   ctx.strokeStyle = 'rgb(60,160,180)';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(175, 175, 120, Math.PI * 1.5,
-    (Math.PI * 2) * (p_s) - Math.PI * 0.5
+  ctx.arc(175, 175, 120, Math.PI * arcOffset,
+    getArcEnd(result.p_s)
   );
   ctx.stroke();
 
   ctx.strokeStyle = 'rgb(80,120,200)';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(175, 175, 127, Math.PI * 1.5,
-    (Math.PI * 2) * (p_milli) - Math.PI * 0.5
+  ctx.arc(175, 175, 127, Math.PI * arcOffset,
+    getArcEnd(result.p_milli)
   );
   ctx.stroke();
 
 
   requestAnimationFrame(drawTimer);
+}
+
+function getTimerFractions(start, end) {
+  milli = end - start;
+  s = ((milli/1000)%60);
+  m = ((milli/(60*1000))%60);
+  h = ((milli/(60*60*1000))%24);
+  return {
+    p_milli : (milli%1000) / 1000,
+    p_s : s / 60,
+    p_m : m / 60,
+    p_h : h / 24,
+    s,
+    m,
+    h
+  };
+}
+
+function getArcEnd(input) {
+  return (Math.PI * 2) * (input) - Math.PI * (2 - arcOffset);
 }

@@ -1,0 +1,3 @@
+[submodule "contracts/accounting"]
+	path = contracts/accounting
+	url = https://github.com/paradoxDAO/accounting/
