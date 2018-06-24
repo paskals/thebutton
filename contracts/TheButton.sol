@@ -29,20 +29,20 @@ contract ButtonBase is DSAuth, SimpleAccounting {
 
     Account public revenue = 
     Account({
-        balance: 0,
-        name: "Revenue"
+        name: "Revenue",
+        balance: 0
     });
 
     Account public nextCampaign = 
     Account({
-        balance: 0,
-        name: "Next Campaign"
+        name: "Next Campaign",
+        balance: 0       
     });
 
     Account public charity = 
     Account({
-        balance: 0,
-        name: "Charity"
+        name: "Charity",
+        balance: 0
     });
 
     mapping (address => Account) winners;
@@ -374,23 +374,29 @@ contract TheButton is ButtonBase {
     function _finalizeCampaign(ButtonCampaign storage c) internal {
         require(c.deadline < now, "Before deadline!");
         require(!c.finalized, "Already finalized!");
+        
         uint totalBalance = c.total.balance;
 
-        transferETH(c.total, winners[c.lastPresser], totalBalance.wmul(c.jackpotFraction));
-        winners[c.lastPresser].name = bytes32(c.lastPresser);
-        totalWon = totalWon.add(totalBalance.wmul(c.jackpotFraction));
+        if(c.presses != 0) {
+            
+            transferETH(c.total, winners[c.lastPresser], totalBalance.wmul(c.jackpotFraction));
+            winners[c.lastPresser].name = bytes32(c.lastPresser);
+            totalWon = totalWon.add(totalBalance.wmul(c.jackpotFraction));
 
-        transferETH(c.total, revenue, totalBalance.wmul(c.devFraction));
-        totalRevenue = totalRevenue.add(totalBalance.wmul(c.devFraction));
+            transferETH(c.total, revenue, totalBalance.wmul(c.devFraction));
+            totalRevenue = totalRevenue.add(totalBalance.wmul(c.devFraction));
 
-        transferETH(c.total, charity, totalBalance.wmul(c.charityFraction));
-        totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
+            transferETH(c.total, charity, totalBalance.wmul(c.charityFraction));
+            totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
 
-        transferETH(c.total, nextCampaign, totalBalance.wmul(c.newCampaignFraction));
+            transferETH(c.total, nextCampaign, totalBalance.wmul(c.newCampaignFraction));
 
-        totalPresses = totalPresses.add(c.presses);
+            totalPresses = totalPresses.add(c.presses);
 
-        c.finalized = true;
-        emit Winrar(c.lastPresser, totalBalance.wmul(c.jackpotFraction));
+            c.finalized = true;
+            emit Winrar(c.lastPresser, totalBalance.wmul(c.jackpotFraction));
+        } else {
+            transferETH(c.total, nextCampaign, totalBalance);
+        }
     }
 }

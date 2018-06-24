@@ -52,13 +52,12 @@ function setDeadline(d) {
     return;
   }
 
-  cancelAnimationFrame(animationID);
-
-  let duration = 5000;
+  let duration = 10000;
   let fps = 60;
+
   let delta = d.getTime() - deadline.getTime();
-  let step = delta/(duration/fps);
-  
+  let step = Math.ceil((delta/(duration/fps))/1000)*1000;
+ 
   var interval = setInterval(function () {
     if(deadline.getTime() < d.getTime()) {
       deadline = new Date(deadline.getTime() + step);
@@ -74,18 +73,8 @@ function setDeadline(d) {
 
 function drawTimer() {
 
-  // ctx.translate(ctx.width/2, ctx.height/2);
-  // ctx.strokeRect();
   var now = new Date();
-  let result = {
-    p_milli : 0,
-    p_s : 0,
-    p_m : 0,
-    p_h : 0,
-    s : 0,
-    m : 0,
-    h : 0
-  };
+  let result = {p_milli : 0, p_s : 0, p_m : 0, p_h : 0, s : 0, m : 0, h : 0};
 
   if(now.getTime() < deadline.getTime()) {
     result = getTimerFractions(now.getTime(), deadline.getTime());
@@ -97,7 +86,6 @@ function drawTimer() {
   ctx.font="20px Audiowide";
   timerText.innerHTML = ("00"+parseInt(result.h)).substr(-2) + ":" + ("00"+parseInt(result.m)).substr(-2) 
     + ":" + ("00"+parseInt(result.s)).substr(-2) + "." + ("00"+parseInt(result.p_milli*100)).substr(-2);
-
 
   // circles  
 
@@ -132,8 +120,6 @@ function drawTimer() {
     getArcEnd(result.p_milli)
   );
   ctx.stroke();
-
-
   requestAnimationFrame(drawTimer);
 }
 

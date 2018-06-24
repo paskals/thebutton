@@ -770,7 +770,11 @@ input::-ms-input-placeholder {
 .currency {
     font-family: Helvetica;
     display: inline-block;
-    margin: 0 10px 0 0;
+    margin: 0 5px 0 0;
+    font-weight: bold;
+}
+#winner-jackpot {
+    font-weight: bolder;
 }
 .total-statistic {
     display: inline-block;
