@@ -479,7 +479,7 @@ input::-ms-input-placeholder {
 }
 .main_menu_bg {
     margin-top: 0px;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.85);
 }
 .main_menu_bg .navbar-default {
     background-color: transparent;
@@ -509,7 +509,7 @@ input::-ms-input-placeholder {
     color: #FFF;
 }
 .navbar-brand > img {
-    max-width: 80%;
+    max-width: 200px;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
@@ -770,7 +770,7 @@ input::-ms-input-placeholder {
 .currency {
     font-family: Helvetica;
     display: inline-block;
-    margin: 0 5px 0 0;
+    margin: 0 2px 0 0;
     font-weight: bold;
 }
 #winner-jackpot {
@@ -784,7 +784,7 @@ input::-ms-input-placeholder {
 .totals_counter {
     color: #FDFDFD;
     padding: 0px 30px 0;
-    margin-top: 60px;
+    margin-top: 40px;
     /*overflow: hidden;*/
     /*display: block;*/
     margin-bottom: 60px;

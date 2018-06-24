@@ -52,11 +52,11 @@ function setDeadline(d) {
     return;
   }
 
-  let duration = 10000;
+  let duration = 12000;
   let fps = 60;
 
   let delta = d.getTime() - deadline.getTime();
-  let step = Math.ceil((delta/(duration/fps))/1000)*1000;
+  let step = Math.ceil((delta/(duration/fps))/1200)*1200;
  
   var interval = setInterval(function () {
     if(deadline.getTime() < d.getTime()) {

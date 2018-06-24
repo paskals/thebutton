@@ -99,7 +99,12 @@
             <h3 id="winner-jackpot" class="statistic-number winner">0.0</h3>
 
         </div>
-        <div class="content">
+        <div id="network-warning" class="warning">
+            <h2 id='network-warning-title' class="warning">Oops! You're on the wrong network!</h2>
+            <h3 id='network-warning-text' class="warning">Just open metamask and switch to the Main Ethereum Network.</h3>
+            <img id="warning-img" src="images/network-warning.png" />
+        </div>
+        <div id="button" class="content">
             <div class="overlay">
                 <div class="container">
                     <div class="row">
@@ -173,6 +178,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-sm-12 col-xs-11">
+                                    <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
+                                        <!-- <i class="fa fa-line-chart"></i> -->
+                                        <h2 id="last-presser" class="statistic-number smaller-statistic">No one</h2>
+                                        <p>Last Presser</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -205,7 +219,7 @@
                             <div class="row">
 
                                 <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right wow fadeInRight" data-wow-duration="1s">
+                                    <div class="counter_right ">
                                         <!-- <i class="fa fa-line-chart"></i> -->
                                         <h2 class="currency total-statistic">Ξ</h2>
                                         <h2 id="totalWon" class="statistic-number total-statistic">0.0</h2>
@@ -213,7 +227,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right wow fadeInRight" data-wow-duration="1s">
+                                    <div class="counter_right">
                                         <!-- <i class="fa fa-line-chart"></i> -->
                                         <h2 class="currency total-statistic">Ξ</h2>
                                         <h2 id="totalCharity" class="statistic-number total-statistic">0.0</h2>
@@ -222,7 +236,7 @@
                                 </div>
 
                                 <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right wow fadeInRight" data-wow-duration="1s">
+                                    <div class="counter_right">
                                         <!-- <i class="fa fa-line-chart"></i> -->
                                         <h2 id="totalPresses" class="statistic-number total-statistic">0</h2>
                                         <p>Total presses</p>

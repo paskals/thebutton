@@ -94,12 +94,15 @@ contract ButtonBase is DSAuth, SimpleAccounting {
         press();
     }
 
-    function latestData() external view returns(uint price, uint jackpot, uint char, uint64 deadline, uint presses) {
+    function latestData() external view returns(
+        uint price, uint jackpot, uint char, uint64 deadline, uint presses, address lastPresser
+        ) {
         price = this.price();
         jackpot = this.jackpot();
         char = this.charity();
         deadline = this.deadline();
         presses = this.presses();
+        lastPresser = this.lastPresser();
     }
 
     function totalsData() external view returns(uint _totalWon, uint _totalCharity, uint _totalPresses) {
@@ -189,6 +192,14 @@ contract ButtonBase is DSAuth, SimpleAccounting {
             return campaigns[lastCampaignID].presses;
         } else {
             return 0;
+        }
+    }
+
+    function lastPresser() external view returns(address) {
+        if(campaigns.length != 0) {
+            return campaigns[lastCampaignID].lastPresser;
+        } else {
+            return address(0);
         }
     }
 
@@ -366,7 +377,7 @@ contract TheButton is ButtonBase {
         c.deadline = uint64(now.add(_period));
         c.n = _n;
         c.period = _period;
-        c.total.name = keccak256(abi.encodePacked("Jackpot ", lastCampaignID));       
+        c.total.name = keccak256(abi.encodePacked("Total", lastCampaignID));       
         transferETH(nextCampaign, c.total, nextCampaign.balance);
         emit Started(c.total.balance, _period, lastCampaignID); 
     }
@@ -389,7 +400,8 @@ contract TheButton is ButtonBase {
             transferETH(c.total, charity, totalBalance.wmul(c.charityFraction));
             totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
 
-            transferETH(c.total, nextCampaign, totalBalance.wmul(c.newCampaignFraction));
+            //avoiding rounding errors - just transfer the leftover
+            transferETH(c.total, nextCampaign, c.total.balance);
 
             totalPresses = totalPresses.add(c.presses);
 

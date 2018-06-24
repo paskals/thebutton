@@ -7,6 +7,21 @@
   margin: auto;
 }
 
+.warning {
+  color: #FFFFFF;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#network-warning {
+  margin: 20px auto;
+  display: none;
+}
+
+#warning-img {
+  height: 250px;
+}
+
 #timer-text {
   -webkit-transform: perspective(500px) rotateX(30deg);
   -moz-transform: perspective(500px) rotateX(30deg);
@@ -22,6 +37,10 @@
   text-shadow: 0px 2px 1px rgba(255, 255, 255, 0.540);
 }
 
+#button {
+  margin: 25px 0 0;
+}
+
 #timerCanvas {
   -webkit-transform: perspective(500px) rotateX(30deg);
   -moz-transform: perspective(500px) rotateX(30deg);
@@ -31,6 +50,7 @@
 }
 
 .timer-button {
+  margin: 0;
 }
 
 .button .outer {
