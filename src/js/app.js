@@ -1,10 +1,10 @@
-var userAccount;
+var userAccount = '';
 var networkID;
 
 var animationID;
 var winner= false;
 
-var desiredNetwork = "5777";
+var desiredNetwork = "3";
 var curNetwork = 0;
 
 App = {
@@ -53,7 +53,7 @@ App = {
       App.web3Provider = web3.currentProvider;
     } else {
       // If no injected web3 instance is detected, fall back to Ganache
-      App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
+      App.web3Provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/47xPqLd4I69lkOUz61YF');
     }
 
     web3 = new Web3(App.web3Provider);
@@ -91,6 +91,7 @@ App = {
     var accountInterval = setInterval(function () {
       if (web3.isConnected()) {
         web3.version.getNetwork(checkNetwork);
+        if(typeof web3.eth.accounts !== 'undefined')
         if (web3.eth.accounts[0] !== userAccount) {
           userAccount = web3.eth.accounts[0];
           // Call a function to update the UI with the new account
@@ -242,8 +243,9 @@ App = {
 
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
-
-      return buttonInstance.hasWon(userAccount);
+      
+      if(typeof web3.eth.accounts !== 'undefined')
+        return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
       won = result;
       if(result > 0) {
@@ -296,7 +298,7 @@ App = {
       App.checkWinner();
       return App.getData();
     }).then(function (result) {
-      if (userAccount != null) {
+      if(typeof web3.eth.accounts !== 'undefined') {
         
         if(winner) {
           toastr.info("Withdrawing jackpot...");
@@ -338,7 +340,7 @@ function checkNetwork (err, currentNetwork) {
     $("#counter").hide(500);
     $("#totals-counter").hide(500);
     $("#network-warning").show(500);
-    toastr.warning("You're not connected to the Main Ethereum network!");
+    toastr.warning("You're not connected to the Ropsten Test network!");
   } else {
     $("#button").show(500);
     $("#network-warning").hide(500);
