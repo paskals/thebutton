@@ -1,6 +1,6 @@
 pragma solidity^0.4.21;
 
-import "./lib/ds-auth/auth.sol";
+import "./lib/ds-auth/src/auth.sol";
 import "./accounting/contracts/Accounting.sol";
 
 contract ButtonBase is DSAuth, SimpleAccounting {
