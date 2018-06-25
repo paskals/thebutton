@@ -20,6 +20,26 @@ App = {
   totalWon: 0,
   totalCharity: 0,
   totalPresses: 0,
+
+  /**
+   * TODO 0.5
+   * - Keep notification visible until transaction is mined
+   * - Update data/UI on timer end
+   * - Add N and price increase % in the details
+   * - Add charity beneficiary to details
+   * - Improve animation - test on mobile
+   * - Work with Infura when web3 provider is unavailable
+   * 
+   * - Adjust colors? Change colors like the original button
+   * - Adjust button animation? Disable when no web3
+   * - Add button press animation when transaction is mined
+   * 
+   * TODO 1.0
+   * - Add reddit page link
+   * - Add contract address to footer
+   * - Add FAQ Page/ quick rules popup
+   * - Add stats page
+   */
   
 
   init: function () {
