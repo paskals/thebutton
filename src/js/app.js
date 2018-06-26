@@ -6,16 +6,18 @@ var winner= false;
 
 var desiredNetwork = "3";
 var curNetwork = 0;
+var timesUp = new Event('over');
 
 App = {
-  web3Provider: null,
+  web3Provider : null,
+  myWeb3 : null,
   contracts: {},
   price: 0,
   dead: null,
   jackpot: 0,
   charity: 0,
   presses: 0,
-  lastPresser: 'Not pressed',
+  lastPresser: '-',
   won: 0,
   totalWon: 0,
   totalCharity: 0,
@@ -23,10 +25,11 @@ App = {
 
   /**
    * TODO 0.5
-   * - Keep notification visible until transaction is mined
-   * - Update data/UI on timer end
+   * v Keep notification visible until transaction is mined
+   * v Update data/UI on timer end
    * - Add N and price increase % in the details
    * - Add charity beneficiary to details
+   * - Add accounting (fractions) to details/footer
    * - Improve animation - test on mobile
    * - Work with Infura when web3 provider is unavailable
    * 
@@ -39,6 +42,10 @@ App = {
    * - Add contract address to footer
    * - Add FAQ Page/ quick rules popup
    * - Add stats page
+   * - Social sharing image
+   * ---
+   * - Set nicknames
+   * - USD prices
    */
   
 
@@ -54,7 +61,7 @@ App = {
       "showDuration": "300",
       "hideDuration": "1000",
       "timeOut": "5000",
-      "extendedTimeOut": "1000",
+      "extendedTimeOut": "10000",
       "showEasing": "swing",
       "hideEasing": "swing",
       "showMethod": "fadeIn",
@@ -72,17 +79,17 @@ App = {
     if (typeof web3 !== 'undefined') {
       App.web3Provider = web3.currentProvider;
     } else {
-      // If no injected web3 instance is detected, fall back to Ganache
+      // If no injected web3 instance is detected, fall back to Infura
       App.web3Provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/47xPqLd4I69lkOUz61YF');
     }
 
-    web3 = new Web3(App.web3Provider);
-    if (web3.isConnected()) {
-        userAccount = web3.eth.accounts[0];
-        web3.version.getNetwork(checkNetwork);
+    myWeb3 = new Web3(App.web3Provider);
+    if (myWeb3.isConnected()) {
+        userAccount = myWeb3.eth.accounts[0];
+        myWeb3.version.getNetwork(checkNetwork);
     }
 
-    web3.version.getNetwork((err, netId) => {
+    myWeb3.version.getNetwork((err, netId) => {
       networkID = netId;
       switch (netId) {
         case "1":
@@ -109,11 +116,11 @@ App = {
     })
 
     var accountInterval = setInterval(function () {
-      if (web3.isConnected()) {
-        web3.version.getNetwork(checkNetwork);
-        if(typeof web3.eth.accounts !== 'undefined')
-        if (web3.eth.accounts[0] !== userAccount) {
-          userAccount = web3.eth.accounts[0];
+      if (myWeb3.isConnected()) {
+        myWeb3.version.getNetwork(checkNetwork);
+        if(typeof myWeb3.eth.accounts !== 'undefined')
+        if (myWeb3.eth.accounts[0] !== userAccount) {
+          userAccount = myWeb3.eth.accounts[0];
           // Call a function to update the UI with the new account
           App.checkWinner();
           App.getData();
@@ -122,14 +129,21 @@ App = {
         clearInterval(accountInterval);
       }
     }, 500);
-
-
+    
+    
     return App.initContract();
+  },
+
+  refresh: function() {
+    
+      // toastr.info("Refreshing");
+      App.checkWinner();
+      App.getData();
   },
 
   //init contracts
   initContract: function () {
-    // if (!web3.isConnected()){
+    // if (!myWeb3.isConnected()){
     //   return;
     // }
     $.getJSON('TheButton.json', function (data) {
@@ -146,6 +160,8 @@ App = {
         pressedEvent = contract.Pressed();
         wonEvent = contract.Winrar();
         startedEvent = contract.Started();
+
+        ethSentEvent = contract.ETHSent();
 
         pressedEvent.watch(function (error, result) {
           if (error) {
@@ -164,8 +180,7 @@ App = {
                 "Button Pressed");
             }
           }
-          App.checkWinner();
-          App.getData();
+          App.refresh();
         })
 
         wonEvent.watch(function (error, result) {
@@ -174,7 +189,7 @@ App = {
           }
           else {
             let name = result.args["guy"];
-            let jackpot = web3.fromWei(result.args["jackpot"], 'ether');
+            let jackpot = myWeb3.fromWei(result.args["jackpot"], 'ether');
             if (name == userAccount) {
               toastr.success("You won the jackpot of " + jackpot + " ETH!");
             } else {
@@ -186,8 +201,7 @@ App = {
             }
             
           }
-          App.checkWinner();
-          App.getData();
+          App.refresh();
         })
 
         startedEvent.watch(function (error, result) {
@@ -197,17 +211,30 @@ App = {
           else {
             let i = result.args["i"];
             let period = result.args["period"];
-            let startingETH = web3.fromWei(result.args["startingETH"], 'ether');
+            let startingETH = myWeb3.fromWei(result.args["startingETH"], 'ether');
 
             toastr.info("Starting jackpot: " + startingETH + "ETH, Period: " + period, 'New Campaign started! ID: ' + i);
 
           }
-          App.checkWinner();
-          App.getData();
+          App.refresh();
+        })
+
+        ethSentEvent.watch(function (error, result) {
+          if (error) {
+            console.log("Error");
+          }
+          else {
+            let to = result.args["to"];
+            lastPresser = name;
+            if (to == userAccount) {
+              toastr.success("Jackpot withdrawn!");
+            } 
+          }
+          App.refresh();
         })
 
       });
-      // App.checkWinner();
+      
       return App.getData();
     });
 
@@ -216,10 +243,11 @@ App = {
 
   bindEvents: function () {
     $(document).on('click', '.button', App.handlePress);
+    window.addEventListener('over', debounce(App.refresh, 5000), false);
   },
 
   getData: function () {
-    if (!web3.isConnected()) {
+    if (!myWeb3.isConnected()) {
       return;
     }
 
@@ -256,7 +284,7 @@ App = {
   },
 
   checkWinner: function() {
-    if (!web3.isConnected()) {
+    if (!myWeb3.isConnected()) {
       return;
     }
     var buttonInstance;
@@ -264,7 +292,7 @@ App = {
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
       
-      if(typeof web3.eth.accounts !== 'undefined')
+      if(typeof myWeb3.eth.accounts !== 'undefined')
         return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
       won = result;
@@ -305,7 +333,7 @@ App = {
   handlePress: function (event) {
     event.preventDefault();
 
-    if (!web3.isConnected()) {
+    if (!myWeb3.isConnected()) {
       toastr.error("You need a web3 enabled browser to press the button!");
       return;
     } 
@@ -318,13 +346,17 @@ App = {
       App.checkWinner();
       return App.getData();
     }).then(function (result) {
-      if(typeof web3.eth.accounts !== 'undefined') {
+      if(typeof myWeb3.eth.accounts !== 'undefined') {
         
         if(winner) {
-          toastr.info("Withdrawing jackpot...");
+          toastr.info("Withdrawing jackpot...",  "", 
+          {"timeOut": "0",
+          "extendedTimeOut": "0"});
           return buttonInstance.withdrawJackpot({ from: userAccount});
         } else {
-          toastr.info("Pressing the button...");
+          toastr.info("Pressing the button...", "", 
+          {"timeOut": "0",
+          "extendedTimeOut": "0"});
           return buttonInstance.press({ from: userAccount, value: price });
         }
       } else {
@@ -332,13 +364,14 @@ App = {
       }
     }).then(function (result) {
       //success (should be logged in the event handling)
-      // toastr.success("You pressed the button!");
+      toastr.clear();
       if (winner) {
         winner = false;
         App.getData();
       }
       
     }).catch(function (err) {
+      toastr.clear();
       toastr.error("Problem pressing the button!")
       console.log(err.message);
     });
@@ -372,6 +405,7 @@ function checkNetwork (err, currentNetwork) {
       $("#winner-section").show(500);
       $("#counter").hide(500);
       $("#totals-counter").hide(500);
+      $("#timer-text").hide(500);
 
       let winning = formatETHString(won);
       setElementValue('winner-jackpot', winning);
@@ -379,13 +413,14 @@ function checkNetwork (err, currentNetwork) {
       $("#winner-section").hide(500);
       $("#counter").show(500);
       $("#totals-counter").show(500);
+      $("#timer-text").show(500);
     }
     
   }
 }
 
 function formatETHString(n) {
-  n = web3.fromWei(n, 'ether');
+  n = myWeb3.fromWei(n, 'ether');
   var withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
   return withCommas;
 };
@@ -398,3 +433,22 @@ function setElementValue(element, value) {
     });
   }
 }
+
+function debounce(func, wait) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			func.apply(context, args);
+		};
+		var callNow = !timeout;
+		
+    timeout = setTimeout(later, wait);
+		if (callNow) { 
+      func.apply(context, args);
+    } else {
+      clearTimeout(timeout);
+    }
+	};
+};
