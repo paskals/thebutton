@@ -1,4 +1,4 @@
-var userAccount = '';
+var userAccount;
 var networkID;
 
 var animationID;
@@ -7,9 +7,9 @@ var winner= false;
 var desiredNetwork = "3";
 var curNetwork = 0;
 var timesUp = new Event('over');
-
 App = {
   web3Provider : null,
+  noInjectedWeb3: false,
   myWeb3 : null,
   contracts: {},
   price: 0,
@@ -27,11 +27,14 @@ App = {
    * TODO 0.5
    * v Keep notification visible until transaction is mined
    * v Update data/UI on timer end
+   * - Check result after press transaction instead of at event
    * - Add N and price increase % in the details
    * - Add charity beneficiary to details
    * - Add accounting (fractions) to details/footer
    * - Improve animation - test on mobile
    * - Work with Infura when web3 provider is unavailable
+   * 
+   * - Events not working for infura provider...
    * 
    * - Adjust colors? Change colors like the original button
    * - Adjust button animation? Disable when no web3
@@ -67,6 +70,7 @@ App = {
       "showMethod": "fadeIn",
       "hideMethod": "fadeOut"
     };
+
     setupTimer();
 
     animationID = requestAnimationFrame(drawTimer);
@@ -80,14 +84,16 @@ App = {
       App.web3Provider = web3.currentProvider;
     } else {
       // If no injected web3 instance is detected, fall back to Infura
+      App.noInjectedWeb3 = true;
       App.web3Provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/47xPqLd4I69lkOUz61YF');
     }
 
     myWeb3 = new Web3(App.web3Provider);
-    if (myWeb3.isConnected()) {
-        userAccount = myWeb3.eth.accounts[0];
+
+    // if (myWeb3.isConnected()) {
+    //     userAccount = myWeb3.eth.accounts[0];
         myWeb3.version.getNetwork(checkNetwork);
-    }
+    // }
 
     myWeb3.version.getNetwork((err, netId) => {
       networkID = netId;
@@ -113,39 +119,22 @@ App = {
         default:
           console.log('This is an unknown network.')
       }
-    })
-
-    var accountInterval = setInterval(function () {
-      if (myWeb3.isConnected()) {
-        myWeb3.version.getNetwork(checkNetwork);
-        if(typeof myWeb3.eth.accounts !== 'undefined')
-        if (myWeb3.eth.accounts[0] !== userAccount) {
-          userAccount = myWeb3.eth.accounts[0];
-          // Call a function to update the UI with the new account
-          App.checkWinner();
-          App.getData();
-        }
-      } else {
-        clearInterval(accountInterval);
-      }
-    }, 500);
-    
-    
+    });
+        
     return App.initContract();
   },
 
   refresh: function() {
     
-      // toastr.info("Refreshing");
+    if(typeof App.contracts.TheButton !== 'undefined') {
       App.checkWinner();
       App.getData();
+    }
   },
 
   //init contracts
   initContract: function () {
-    // if (!myWeb3.isConnected()){
-    //   return;
-    // }
+    
     $.getJSON('TheButton.json', function (data) {
       //     // Get the necessary contract artifact file and instantiate it with truffle-contract
       var TheButtonArtifact = data;
@@ -171,7 +160,7 @@ App = {
             let name = result.args["by"];
             lastPresser = name;
             if (name == userAccount) {
-              toastr.success("You pressed the button!");
+              
             } else {
               if (name.length > 25) {
                 name = name.substring(0, 21) + "...";
@@ -227,11 +216,25 @@ App = {
             let to = result.args["to"];
             lastPresser = name;
             if (to == userAccount) {
-              toastr.success("Jackpot withdrawn!");
+              
             } 
           }
           App.refresh();
         })
+
+        var accountInterval = setInterval(function () {
+          // if (myWeb3.isConnected()) {
+            myWeb3.version.getNetwork(checkNetwork);
+            if(typeof myWeb3.eth.defaultAccount !== 'undefined')
+            if (myWeb3.eth.accounts[0] !== userAccount) {
+              userAccount = myWeb3.eth.accounts[0];
+              // Call a function to update the UI with the new account
+              App.refresh();
+            }
+          // } else {
+          //   clearInterval(accountInterval);
+          // }
+        }, 500);
 
       });
       
@@ -247,9 +250,9 @@ App = {
   },
 
   getData: function () {
-    if (!myWeb3.isConnected()) {
-      return;
-    }
+    // if (!myWeb3.isConnected()) {
+    //   return;
+    // }
 
     var buttonInstance;
 
@@ -269,7 +272,7 @@ App = {
       return buttonInstance.totalsData.call();
     }).then(function (result) {
       if(winner) {
-        setDeadline(new Date());
+        setDeadline(new Date(0));
       } else {
         setDeadline(new Date(dead * 1000));
       }
@@ -284,16 +287,21 @@ App = {
   },
 
   checkWinner: function() {
-    if (!myWeb3.isConnected()) {
+    if(typeof userAccount == 'undefined') {
       return;
     }
+
+    if(App.noInjectedWeb3) {
+      return;
+    }
+
     var buttonInstance;
 
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
       
-      if(typeof myWeb3.eth.accounts !== 'undefined')
-        return buttonInstance.hasWon(userAccount);
+      
+      return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
       won = result;
       if(result > 0) {
@@ -331,32 +339,33 @@ App = {
   },
 
   handlePress: function (event) {
-    event.preventDefault();
+    // event.preventDefault();
 
-    if (!myWeb3.isConnected()) {
+    if (App.noInjectedWeb3) {
       toastr.error("You need a web3 enabled browser to press the button!");
       return;
     } 
 
     var buttonInstance;
-
+    let toast;
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
 
       App.checkWinner();
       return App.getData();
     }).then(function (result) {
-      if(typeof myWeb3.eth.accounts !== 'undefined') {
+      if(typeof userAccount !== 'undefined') {
         
         if(winner) {
-          toastr.info("Withdrawing jackpot...",  "", 
-          {"timeOut": "0",
-          "extendedTimeOut": "0"});
+          toast = toastr.info("Withdrawing jackpot...",  "", 
+            {"timeOut": "0",
+            "extendedTimeOut": "0"});
+          
           return buttonInstance.withdrawJackpot({ from: userAccount});
         } else {
-          toastr.info("Pressing the button...", "", 
-          {"timeOut": "0",
-          "extendedTimeOut": "0"});
+          toast = toastr.info("Pressing the button...", "", 
+            {"timeOut": "0",
+            "extendedTimeOut": "0"});
           return buttonInstance.press({ from: userAccount, value: price });
         }
       } else {
@@ -364,14 +373,24 @@ App = {
       }
     }).then(function (result) {
       //success (should be logged in the event handling)
-      toastr.clear();
-      if (winner) {
-        winner = false;
+      // console.log(result);
+      if(typeof toast !== 'undefined')
+        toast.hide(200);
+
+      if(result.receipt.status == "0x1") {
+        if (result.logs.length <= 2) {
+          toastr.success("Jackpot withdrawn!");
+          winner = false;          
+        } else {
+          toastr.success("You pressed the button!");
+        }
         App.getData();
       }
       
+      
     }).catch(function (err) {
-      toastr.clear();
+      if(typeof toast !== 'undefined')
+        toast.hide();
       toastr.error("Problem pressing the button!")
       console.log(err.message);
     });
