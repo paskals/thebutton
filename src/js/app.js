@@ -2,15 +2,15 @@ var userAccount;
 var networkID;
 
 var animationID;
-var winner= false;
+var winner = false;
 
 var desiredNetwork = "3";
 var curNetwork = 0;
 var timesUp = new Event('over');
 App = {
-  web3Provider : null,
+  web3Provider: null,
   noInjectedWeb3: false,
-  myWeb3 : null,
+  myWeb3: null,
   contracts: {},
   price: 0,
   dead: null,
@@ -27,14 +27,14 @@ App = {
    * TODO 0.5
    * v Keep notification visible until transaction is mined
    * v Update data/UI on timer end
-   * - Check result after press transaction instead of at event
+   * v Check result after press transaction instead of at event
    * - Add N and price increase % in the details
    * - Add charity beneficiary to details
    * - Add accounting (fractions) to details/footer
    * - Improve animation - test on mobile
-   * - Work with Infura when web3 provider is unavailable
+   * v Work with Infura when web3 provider is unavailable
    * 
-   * - Events not working for infura provider...
+   * - Events not working for infura provider... - replaced by periodic updates
    * 
    * - Adjust colors? Change colors like the original button
    * - Adjust button animation? Disable when no web3
@@ -50,7 +50,7 @@ App = {
    * - Set nicknames
    * - USD prices
    */
-  
+
 
   init: function () {
     // Load data.
@@ -92,7 +92,7 @@ App = {
 
     // if (myWeb3.isConnected()) {
     //     userAccount = myWeb3.eth.accounts[0];
-        myWeb3.version.getNetwork(checkNetwork);
+    myWeb3.version.getNetwork(checkNetwork);
     // }
 
     myWeb3.version.getNetwork((err, netId) => {
@@ -120,13 +120,13 @@ App = {
           console.log('This is an unknown network.')
       }
     });
-        
+
     return App.initContract();
   },
 
-  refresh: function() {
-    
-    if(typeof App.contracts.TheButton !== 'undefined') {
+  refresh: function () {
+
+    if (typeof App.contracts.TheButton !== 'undefined') {
       App.checkWinner();
       App.getData();
     }
@@ -134,7 +134,7 @@ App = {
 
   //init contracts
   initContract: function () {
-    
+
     $.getJSON('TheButton.json', function (data) {
       //     // Get the necessary contract artifact file and instantiate it with truffle-contract
       var TheButtonArtifact = data;
@@ -154,13 +154,13 @@ App = {
 
         pressedEvent.watch(function (error, result) {
           if (error) {
-            console.log("Error");
+            console.log(error);
           }
           else {
             let name = result.args["by"];
             lastPresser = name;
             if (name == userAccount) {
-              
+
             } else {
               if (name.length > 25) {
                 name = name.substring(0, 21) + "...";
@@ -174,7 +174,7 @@ App = {
 
         wonEvent.watch(function (error, result) {
           if (error) {
-            console.log("Error");
+            console.log(error);
           }
           else {
             let name = result.args["guy"];
@@ -188,14 +188,14 @@ App = {
               toastr.info("By: " + name,
                 "Jackpot won");
             }
-            
+
           }
           App.refresh();
         })
 
         startedEvent.watch(function (error, result) {
           if (error) {
-            console.log("Error");
+            console.log(error);
           }
           else {
             let i = result.args["i"];
@@ -210,22 +210,22 @@ App = {
 
         ethSentEvent.watch(function (error, result) {
           if (error) {
-            console.log("Error");
+            console.log(error);
           }
           else {
             let to = result.args["to"];
             lastPresser = name;
             if (to == userAccount) {
-              
-            } 
+
+            }
           }
           App.refresh();
         })
 
         var accountInterval = setInterval(function () {
           // if (myWeb3.isConnected()) {
-            myWeb3.version.getNetwork(checkNetwork);
-            if(typeof myWeb3.eth.defaultAccount !== 'undefined')
+          myWeb3.version.getNetwork(checkNetwork);
+          if (typeof myWeb3.eth.defaultAccount !== 'undefined')
             if (myWeb3.eth.accounts[0] !== userAccount) {
               userAccount = myWeb3.eth.accounts[0];
               // Call a function to update the UI with the new account
@@ -236,8 +236,12 @@ App = {
           // }
         }, 500);
 
+        var updateInterval = setInterval(function () {
+          App.getData();
+        }, 5000);
+
       });
-      
+
       return App.getData();
     });
 
@@ -246,13 +250,13 @@ App = {
 
   bindEvents: function () {
     $(document).on('click', '.button', App.handlePress);
-    window.addEventListener('over', debounce(App.refresh, 5000), false);
+    // window.addEventListener('over', debounce(App.refresh, 5000), false);
   },
 
   getData: function () {
-    // if (!myWeb3.isConnected()) {
-    //   return;
-    // }
+    if (curNetwork != desiredNetwork) {
+      return;
+    }
 
     var buttonInstance;
 
@@ -271,7 +275,7 @@ App = {
 
       return buttonInstance.totalsData.call();
     }).then(function (result) {
-      if(winner) {
+      if (winner) {
         setDeadline(new Date(0));
       } else {
         setDeadline(new Date(dead * 1000));
@@ -286,12 +290,12 @@ App = {
     });
   },
 
-  checkWinner: function() {
-    if(typeof userAccount == 'undefined') {
+  checkWinner: function () {
+    if (typeof userAccount == 'undefined') {
       return;
     }
 
-    if(App.noInjectedWeb3) {
+    if (App.noInjectedWeb3 || curNetwork !== desiredNetwork) {
       return;
     }
 
@@ -299,18 +303,18 @@ App = {
 
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
-      
-      
+
+
       return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
       won = result;
-      if(result > 0) {
+      if (result > 0) {
         winner = true;
       } else {
         winner = false;
       }
 
-      }).catch(function (err) {
+    }).catch(function (err) {
       console.log(err.message);
     });
   },
@@ -323,9 +327,21 @@ App = {
     let totChar = formatETHString(totalCharity);
     let name;
 
-    if (lastPresser.length > 22) {
-      name = lastPresser.substring(0, 19) + "...";
+    if (lastPresser.length > 20) {
+      name = lastPresser.substring(0, 16) + "...";
     }
+
+    var icon = blockies.create({ // All options are optional
+      seed: lastPresser, // seed used to generate icon data, default: random
+      size: 7, // width/height of the icon in blocks, default: 8
+      scale: 3, // width/height of each block in pixels, default: 4
+      // that look like eyes, mouths and noses.
+    });
+
+    // document.body.appendChild(icon); // icon is a canvas element
+
+    var iconElement = document.getElementById('identicon');
+    iconElement.replaceChild(icon, iconElement.childNodes[0]);
 
     setElementValue('jackpot', jack);
     setElementValue('price', pri);
@@ -335,7 +351,7 @@ App = {
     setElementValue('totalWon', totWon);
     setElementValue('totalCharity', totChar);
     setElementValue('totalPresses', totalPresses);
-    
+
   },
 
   handlePress: function (event) {
@@ -344,7 +360,7 @@ App = {
     if (App.noInjectedWeb3) {
       toastr.error("You need a web3 enabled browser to press the button!");
       return;
-    } 
+    }
 
     var buttonInstance;
     let toast;
@@ -354,18 +370,22 @@ App = {
       App.checkWinner();
       return App.getData();
     }).then(function (result) {
-      if(typeof userAccount !== 'undefined') {
-        
-        if(winner) {
-          toast = toastr.info("Withdrawing jackpot...",  "", 
-            {"timeOut": "0",
-            "extendedTimeOut": "0"});
-          
-          return buttonInstance.withdrawJackpot({ from: userAccount});
+      if (typeof userAccount !== 'undefined') {
+
+        if (winner) {
+          toast = toastr.info("Withdrawing jackpot...", "",
+            {
+              "timeOut": "0",
+              "extendedTimeOut": "0"
+            });
+
+          return buttonInstance.withdrawJackpot({ from: userAccount });
         } else {
-          toast = toastr.info("Pressing the button...", "", 
-            {"timeOut": "0",
-            "extendedTimeOut": "0"});
+          toast = toastr.info("Pressing the button...", "",
+            {
+              "timeOut": "0",
+              "extendedTimeOut": "0"
+            });
           return buttonInstance.press({ from: userAccount, value: price });
         }
       } else {
@@ -374,24 +394,30 @@ App = {
     }).then(function (result) {
       //success (should be logged in the event handling)
       // console.log(result);
-      if(typeof toast !== 'undefined')
-        toast.hide(200);
-
-      if(result.receipt.status == "0x1") {
-        if (result.logs.length <= 2) {
+      if (typeof toast !== 'undefined') {
+        if (toast.text().includes('jackpot')) {
+          toast.hide(200);
           toastr.success("Jackpot withdrawn!");
-          winner = false;          
         } else {
+          toast.hide(200);
           toastr.success("You pressed the button!");
         }
-        App.getData();
+
+
       }
-      
-      
+
+      if (result.receipt.status == "0x1") {
+        if (winner) {
+          winner = false;
+        }
+        App.refresh();
+      }
+
+
     }).catch(function (err) {
-      if(typeof toast !== 'undefined')
+      if (typeof toast !== 'undefined')
         toast.hide();
-      toastr.error("Problem pressing the button!")
+      toastr.error("Possibly rejected transaction.", "Problem pressing the button!")
       console.log(err.message);
     });
   }
@@ -404,10 +430,10 @@ $(function () {
   });
 });
 
-function checkNetwork (err, currentNetwork) {
+function checkNetwork(err, currentNetwork) {
   // if (err) throw err 
   curNetwork = currentNetwork;
-  if (currentNetwork !== desiredNetwork) {
+  if (curNetwork !== desiredNetwork) {
     $("#button").hide(500);
     $("#counter").hide(500);
     $("#totals-counter").hide(500);
@@ -417,7 +443,7 @@ function checkNetwork (err, currentNetwork) {
     $("#button").show(500);
     $("#network-warning").hide(500);
 
-    if(winner) {
+    if (winner) {
       var x = document.getElementById("winner-section");
       // x.style.display = "normal";
       // x.show();
@@ -434,7 +460,7 @@ function checkNetwork (err, currentNetwork) {
       $("#totals-counter").show(500);
       $("#timer-text").show(500);
     }
-    
+
   }
 }
 
@@ -454,20 +480,20 @@ function setElementValue(element, value) {
 }
 
 function debounce(func, wait) {
-	var timeout;
-	return function() {
-		var context = this, args = arguments;
-		var later = function() {
-			timeout = null;
-			func.apply(context, args);
-		};
-		var callNow = !timeout;
-		
+  var timeout;
+  return function () {
+    var context = this, args = arguments;
+    var later = function () {
+      timeout = null;
+      func.apply(context, args);
+    };
+    var callNow = !timeout;
+
     timeout = setTimeout(later, wait);
-		if (callNow) { 
+    if (callNow) {
       func.apply(context, args);
     } else {
       clearTimeout(timeout);
     }
-	};
+  };
 };

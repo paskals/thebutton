@@ -7,6 +7,12 @@
   margin: auto;
 }
 
+#identicon {
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+}
+
 .warning {
   color: #FFFFFF;
   margin: 0 auto;
