@@ -7,6 +7,13 @@ var winner = false;
 var desiredNetwork = "3";
 var curNetwork = 0;
 var timesUp = new Event('over');
+
+$(function () {
+  $(window).load(function () {
+    App.init();
+  });
+});
+
 App = {
   web3Provider: null,
   noInjectedWeb3: false,
@@ -28,14 +35,14 @@ App = {
    * v Keep notification visible until transaction is mined
    * v Update data/UI on timer end
    * v Check result after press transaction instead of at event
+   * v Work with Infura when web3 provider is unavailable
+   * 
+   * TODO 0.6
    * - Add N and price increase % in the details
    * - Add charity beneficiary to details
    * - Add accounting (fractions) to details/footer
    * - Improve animation - test on mobile
-   * v Work with Infura when web3 provider is unavailable
-   * 
-   * - Events not working for infura provider... - replaced by periodic updates
-   * 
+   *  
    * - Adjust colors? Change colors like the original button
    * - Adjust button animation? Disable when no web3
    * - Add button press animation when transaction is mined
@@ -76,6 +83,11 @@ App = {
     animationID = requestAnimationFrame(drawTimer);
 
     return App.initWeb3();
+  },
+
+  bindEvents: function () {
+    $(document).on('click', '.button', App.handlePress);
+    // window.addEventListener('over', debounce(App.refresh, 5000), false);
   },
 
   initWeb3: function () {
@@ -122,14 +134,6 @@ App = {
     });
 
     return App.initContract();
-  },
-
-  refresh: function () {
-
-    if (typeof App.contracts.TheButton !== 'undefined') {
-      App.checkWinner();
-      App.getData();
-    }
   },
 
   //init contracts
@@ -248,9 +252,80 @@ App = {
     return App.bindEvents();
   },
 
-  bindEvents: function () {
-    $(document).on('click', '.button', App.handlePress);
-    // window.addEventListener('over', debounce(App.refresh, 5000), false);
+  refresh: function () {
+
+    if (typeof App.contracts.TheButton !== 'undefined') {
+      App.checkWinner();
+      App.getData();
+    }
+  },
+
+  handlePress: function (event) {
+    // event.preventDefault();
+
+    if (App.noInjectedWeb3) {
+      toastr.error("You need a web3 enabled browser to press the button!");
+      return;
+    }
+
+    var buttonInstance;
+    let toast;
+    App.contracts.TheButton.deployed().then(function (instance) {
+      buttonInstance = instance;
+
+      App.checkWinner();
+      return App.getData();
+    }).then(function (result) {
+      if (typeof userAccount !== 'undefined') {
+
+        if (winner) {
+          toast = toastr.info("Withdrawing jackpot...", "",
+            {
+              "timeOut": "0",
+              "extendedTimeOut": "0"
+            });
+
+          return buttonInstance.withdrawJackpot({ from: userAccount });
+        } else {
+          toast = toastr.info("Pressing the button...", "",
+            {
+              "timeOut": "0",
+              "extendedTimeOut": "0"
+            });
+          return buttonInstance.press({ from: userAccount, value: price });
+        }
+      } else {
+        toastr.warning("You need to unlock your account!");
+      }
+    }).then(function (result) {
+      //success (should be logged in the event handling)
+      // console.log(result);
+      if (typeof toast !== 'undefined') {
+        if (toast.text().includes('jackpot')) {
+          toast.hide(200);
+          toastr.success("Jackpot withdrawn!");
+        } else {
+          toast.hide(200);
+          toastr.success("You pressed the button!");
+        }
+
+
+      }
+
+      if (result.receipt.status == "0x1") {
+        if (winner) {
+          winner = false;
+        }
+        App.refresh();
+      }
+
+
+    }).catch(function (err) {
+      if (typeof toast !== 'undefined')
+        toast.hide();
+      toastr.error("Possibly rejected transaction.", "Problem pressing the button!")
+      console.log(err.message);
+    });
   },
 
   getData: function () {
@@ -352,87 +427,19 @@ App = {
     setElementValue('totalCharity', totChar);
     setElementValue('totalPresses', totalPresses);
 
-  },
-
-  handlePress: function (event) {
-    // event.preventDefault();
-
-    if (App.noInjectedWeb3) {
-      toastr.error("You need a web3 enabled browser to press the button!");
-      return;
-    }
-
-    var buttonInstance;
-    let toast;
-    App.contracts.TheButton.deployed().then(function (instance) {
-      buttonInstance = instance;
-
-      App.checkWinner();
-      return App.getData();
-    }).then(function (result) {
-      if (typeof userAccount !== 'undefined') {
-
-        if (winner) {
-          toast = toastr.info("Withdrawing jackpot...", "",
-            {
-              "timeOut": "0",
-              "extendedTimeOut": "0"
-            });
-
-          return buttonInstance.withdrawJackpot({ from: userAccount });
-        } else {
-          toast = toastr.info("Pressing the button...", "",
-            {
-              "timeOut": "0",
-              "extendedTimeOut": "0"
-            });
-          return buttonInstance.press({ from: userAccount, value: price });
-        }
-      } else {
-        toastr.warning("You need to unlock your account!");
-      }
-    }).then(function (result) {
-      //success (should be logged in the event handling)
-      // console.log(result);
-      if (typeof toast !== 'undefined') {
-        if (toast.text().includes('jackpot')) {
-          toast.hide(200);
-          toastr.success("Jackpot withdrawn!");
-        } else {
-          toast.hide(200);
-          toastr.success("You pressed the button!");
-        }
-
-
-      }
-
-      if (result.receipt.status == "0x1") {
-        if (winner) {
-          winner = false;
-        }
-        App.refresh();
-      }
-
-
-    }).catch(function (err) {
-      if (typeof toast !== 'undefined')
-        toast.hide();
-      toastr.error("Possibly rejected transaction.", "Problem pressing the button!")
-      console.log(err.message);
-    });
   }
 
 };
 
-$(function () {
-  $(window).load(function () {
-    App.init();
-  });
-});
-
 function checkNetwork(err, currentNetwork) {
-  // if (err) throw err 
+  if (err) {
+    console.log(err);
+  }
   curNetwork = currentNetwork;
+  setElentVisibility();
+}
+
+function setElentVisibility() {
   if (curNetwork !== desiredNetwork) {
     $("#button").hide(500);
     $("#counter").hide(500);
@@ -460,7 +467,6 @@ function checkNetwork(err, currentNetwork) {
       $("#totals-counter").show(500);
       $("#timer-text").show(500);
     }
-
   }
 }
 
