@@ -1,0 +1,6 @@
+[submodule "contracts/accounting"]
+	path = contracts/accounting
+	url = https://github.com/paradoxDAO/accounting/
+[submodule "contracts/lib/ds-auth"]
+	path = contracts/lib/ds-auth
+	url = https://github.com/dapphub/ds-auth.git

@@ -5,6 +5,16 @@ Author URI: http://bootstrapthemes.co
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+#show-hide {
+    text-align: center;
+    height: ;
+    width: 100%;
+    color: #FFFFFF;
+    font-size: 11px;
+}
+.show-hide {
+    margin: 0 0 20px 0;
+}
 html,
 body {
     background-color: #000000;
@@ -126,9 +136,7 @@ h1 {
     color: #FFF;
 }
 h2 {
-    font-size: 2.5rem;
-    line-height: 3rem;
-    margin-bottom: 35px;
+    margin-bottom: 5px;
     font-family: 'latobold';
 }
 h3 {
@@ -153,7 +161,7 @@ h6 {
     margin-bottom: 0.9rem;
 }
 p {
-    line-height: 1.375rem;
+    line-height: 1;
     font-size: 0.875rem;
 }
 p:last-child {
@@ -471,7 +479,7 @@ input::-ms-input-placeholder {
 }
 .main_menu_bg {
     margin-top: 0px;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.85);
 }
 .main_menu_bg .navbar-default {
     background-color: transparent;
@@ -501,7 +509,7 @@ input::-ms-input-placeholder {
     color: #FFF;
 }
 .navbar-brand > img {
-    max-width: 80%;
+    max-width: 200px;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
@@ -512,7 +520,10 @@ input::-ms-input-placeholder {
 /*home section*/
 .home {
     background: #000000;
-    margin-top: 80px;
+    padding: 60px 0 20px;
+}
+.smaller-statistic {
+    font-size: 25px;
 }
 .home .main_home {
     padding-top: 250px;
@@ -728,15 +739,13 @@ input::-ms-input-placeholder {
 }
 /*counter section css*/
 .counter {
-    background: url(../images/counterbg.jpg) no-repeat 100% 100%;
-    background-size: cover;
-    height: 380px;
     overflow: hidden;
 }
 .counter .main_counter {
+    padding: 60px 30px 0;
 }
 .counter .main_counter .single_counter_right {
-    margin-top: 30px;
+    margin-top: 15px;
     overflow: hidden;
     display: block;
 }
@@ -749,8 +758,36 @@ input::-ms-input-placeholder {
 }
 .counter .main_counter .single_counter_right h2 {
     color: #FFF;
-    margin-bottom: 30px;
-    line-height: 0;
+    margin-bottom: 5px;
+    line-height: 1;
+    display: inline-block;
+}
+.counter_right {
+    margin-bottom: 5px;
+    line-height: 1;
+    height: auto;
+}
+.currency {
+    font-family: Helvetica;
+    display: inline-block;
+    margin: 0 2px 0 0;
+    font-weight: bold;
+}
+#winner-jackpot {
+    font-weight: bolder;
+}
+.total-statistic {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 100;
+}
+.totals_counter {
+    color: #FDFDFD;
+    padding: 0px 30px 0;
+    margin-top: 30px;
+    /*overflow: hidden;*/
+    /*display: block;*/
+    margin-bottom: 60px;
 }
 .counter .main_counter .single_counter_right p {
     color: #FEFEFE;
@@ -807,7 +844,7 @@ input::-ms-input-placeholder {
 /*footer section*/
 .footer {
     background: #1F1F1F;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
     height: 60px;

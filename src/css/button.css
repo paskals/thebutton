@@ -1,10 +1,62 @@
 .button {
-  height: 200px;
-  width: 200px;
+  height: 180px;
+  width: 180px;
   top: 50%;
-  left: 50%;
+  left: auto;
   cursor: pointer;
   margin: auto;
+}
+
+#identicon {
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+}
+
+.warning {
+  color: #FFFFFF;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#network-warning {
+  margin: 20px auto;
+  display: none;
+}
+
+#warning-img {
+  height: 250px;
+}
+
+#timer-text {
+  -webkit-transform: perspective(500px) rotateX(30deg);
+  -moz-transform: perspective(500px) rotateX(30deg);
+  color: white;
+  position: absolute;
+  left: auto;
+  top: calc(50% + 125px);
+  /*font-family: Monospace;*/
+  font-size: 25px;
+  text-align: center;
+  width: 100%;
+  margin: 0 0 0 -15px;
+  text-shadow: 0px 2px 1px rgba(255, 255, 255, 0.540);
+}
+
+#button {
+  margin: 25px 0 0;
+}
+
+#timerCanvas {
+  -webkit-transform: perspective(500px) rotateX(30deg);
+  -moz-transform: perspective(500px) rotateX(30deg);
+  position: absolute;
+  top: calc(50% - 175px);
+  left: calc(50% - 175px);
+}
+
+.timer-button {
+  margin: 0;
 }
 
 .button .outer {
@@ -19,8 +71,8 @@
   box-shadow: inset rgba(0, 0, 0, 0.85) 0px 1px 5px;
   -webkit-box-shadow: inset rgba(0,0,0,0.85) 0px 1px 5px;
   -moz-box-shadow: inset rgba(0,0,0,0.85) 0px 1px 5px;
-  /* -webkit-transform: perspective(500px) rotateX(35deg);
-  -moz-transform: perspective(500px) rotateX(35deg); */
+  -webkit-transform: perspective(500px) rotateX(30deg);
+  -moz-transform: perspective(500px) rotateX(30deg);
 }
 
 .button .outer .height {
@@ -113,200 +165,45 @@
   background: linear-gradient(top, #1d7d12 0%,#4fd342 100%);
   /* W3C */
 }
-/* timer stuff */
-@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
-* {
+
+/* // colors */
+:root {
+  --color-dark: #161616;
+  --color-ocean: #416dea;
+  --color-grass: #3dd28d;
+  --color-snow: #FFFFFF;
+  --color-salmon: #F32C52;
+  --color-sun: #feee7d;
+  --color-alge: #7999a9;
+  --color-flower: #353866;
+  --color-smoke: #e4e4e4;
+  --font-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* // reset */
+html {
   box-sizing: border-box;
 }
 
-body {
-  padding: 20px;
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
-.timer-group {
-  height: 400px;
-  margin: 0 auto;
-  position: relative;
-  width: 400px;
-  -webkit-transform: perspective(500px) rotateX(30deg);
-  -moz-transform: perspective(500px) rotateX(3deg);
+/* // button styles */
+.winner {
+  display: inline-block;
+  font-size: 22px;
+  color: #FFFFFF;
 }
 
-.timer {
-  border-radius: 50%;
-  height: 100px;
-  overflow: hidden;
-  position: absolute;
-  width: 100px;
+#winner-text {
+  margin: 0 5px 0 0;
 }
 
-.timer:after {
-  background: #111 url(https://codepen.io/images/classy_fabric.png);
-  border-radius: 50%;
-  content: "";
-  display: block;
-  height: 80px;
-  left: 10px;
-  position: absolute;
-  width: 80px;
-  top: 10px;
-}
-
-.timer .hand {
-  float: left;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  width: 50%;
-}
-
-.timer .hand span {
-  border: 50px solid rgba(0, 255, 255, 0.4);
-  border-bottom-color: transparent;
-  border-left-color: transparent;
-  border-radius: 50%;
-  display: block;
-  height: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transform: rotate(225deg);
-  width: 0;
-}
-
-.timer .hand:first-child {
-  transform: rotate(180deg);
-}
-
-.timer .hand span {
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-
-.timer .hand:first-child span {
-  animation-name: spin1;
-}
-
-.timer .hand:last-child span {
-  animation-name: spin2;
-}
-
-.timer.hour {
-  background: rgba(0, 0, 0, 0.3);
-  height: 400px;
-  left: 0;
-  width: 400px;
-  top: 0;
-}
-
-.timer.hour .hand span {
-  animation-duration: 3600s;
-  border-top-color: rgba(255, 0, 255, 0.4);
-  border-right-color: rgba(255, 0, 255, 0.4);
-  border-width: 200px;
-}
-
-.timer.hour:after {
-  height: 360px;
-  left: 20px;
-  width: 360px;
-  top: 20px;
-}
-
-.timer.minute {
-  background: rgba(0, 0, 0, 0.2);
-  height: 350px;
-  left: 25px;
-  width: 350px;
-  top: 25px;
-}
-
-.timer.minute .hand span {
-  animation-duration: 60s;
-  border-top-color: rgba(0, 255, 255, 0.4);
-  border-right-color: rgba(0, 255, 255, 0.4);
-  border-width: 175px;
-}
-
-.timer.minute:after {
-  height: 310px;
-  left: 20px;
-  width: 310px;
-  top: 20px;
-}
-
-.timer.second {
-  background: #1F1F1F;
-  height: 300px;
-  left: 50px;
-  width: 300px;
-  top: 50px;
-}
-
-.timer.second .hand span {
-  animation-duration: 1s;
-  border-top-color: rgba(255, 255, 255, 0.15);
-  border-right-color: rgba(255, 255, 255, 0.15);
-  border-width: 150px;
-}
-
-.timer.second:after {
-  height: 296px;
-  left: 2px;
-  width: 296px;
-  top: 2px;
-}
-
-.face {
-  border-radius: 50%;
-  left: 52px;
-  position: absolute;
-  width: 296px;
+#winner-section {
+  color: #FFFFFF;
+  margin: 20px auto 30px;
+  justify-content: center;
   text-align: center;
-  top: 17px;
-  margin: 80px auto auto;
-  background-color: ;
-}
-
-.face h2 {
-  font-weight: 300;
-}
-
-.face p {
-  border-radius: 20px;
-  font-size: 76px;
-  font-weight: 400;
-  position: absolute;
-  top: 17px;
-  width: 260px;
-  left: 20px;
-}
-
-@keyframes spin1 {
-  0% {
-    transform: rotate(225deg);
-  }
-  
-  50% {
-    transform: rotate(225deg);
-  }
-  
-  100% {
-    transform: rotate(405deg);
-  }
-}
-
-@keyframes spin2 {
-  0% {
-    transform: rotate(225deg);
-  }
-  
-  50% {
-    transform: rotate(405deg);
-  }
-  
-  100% {
-    transform: rotate(405deg);
-  }
+  display: none;
 }
