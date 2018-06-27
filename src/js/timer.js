@@ -52,8 +52,8 @@ function setDeadline(d) {
     return;
   }
 
-  let duration = 12000;
-  let fps = 60;
+  let duration = 2000;
+  let fps = 30;
 
   let delta = d.getTime() - deadline.getTime();
   let step = Math.ceil((delta/(duration/fps))/1200)*1200;
@@ -78,6 +78,8 @@ function drawTimer() {
 
   if(now.getTime() < deadline.getTime()) {
     result = getTimerFractions(now.getTime(), deadline.getTime());
+  } else {
+    window.dispatchEvent(timesUp)
   }
 
   ctx.clearRect(0,0,350,350);
@@ -89,34 +91,34 @@ function drawTimer() {
 
   // circles  
 
-  ctx.strokeStyle = 'rgb(180,60,160)';
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.arc(175, 175, 100, Math.PI * arcOffset,
-    getArcEnd(result.p_h)
-  );
-  ctx.stroke();
+  // ctx.strokeStyle = 'rgb(180,60,160)';
+  // ctx.lineWidth = 8;
+  // ctx.beginPath();
+  // ctx.arc(175, 175, 100, Math.PI * arcOffset,
+  //   getArcEnd(result.p_h)
+  // );
+  // ctx.stroke();
 
-  ctx.strokeStyle = 'rgb(180,160,250)';
+  ctx.strokeStyle = '#777E9E';
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(175, 175, 111, Math.PI * arcOffset,
+  ctx.arc(175, 175, 100, Math.PI * arcOffset,
     getArcEnd(result.p_m)
   );
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgb(60,160,180)';
+  ctx.strokeStyle = '#B5BDAF';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(175, 175, 120, Math.PI * arcOffset,
+  ctx.arc(175, 175, 109, Math.PI * arcOffset,
     getArcEnd(result.p_s)
   );
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgb(80,120,200)';
+  ctx.strokeStyle = '#F1F3E3';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(175, 175, 127, Math.PI * arcOffset,
+  ctx.arc(175, 175, 116, Math.PI * arcOffset,
     getArcEnd(result.p_milli)
   );
   ctx.stroke();
