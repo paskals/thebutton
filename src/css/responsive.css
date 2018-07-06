@@ -1,29 +1,19 @@
-
-
 /*
 Author: Bootstrapthemes
 Author URI: http://www.bootstrapthemes.co
 */
-
 /* Portrait tablets and medium desktops */
 @media (max-width: 1199px) {
     body {
         font-size: 1rem;
     }
-
     h1 {
         font-size: 3.5rem;
     }
-    .mixi_portfolio_overlay .overflow_hover_text{
+    .mixi_portfolio_overlay .overflow_hover_text {
         padding: 70px 0px 0px 0px;
     }
-
-
-
-
-
 }
-
 /* Portrait tablets and small desktops */
 @media (max-width: 991px) {
     html {
@@ -36,24 +26,20 @@ Author URI: http://www.bootstrapthemes.co
     }
     h5 {
         font-size: 1.1rem;
-        margin-bottom: .5rem;
-        color: #696f7c;
+        margin-bottom: 0.5rem;
+        color: #696F7C;
         line-height: 1.475rem;
     }
     h4 {
         font-size: 1.225rem;
         line-height: 2rem;
     }
-    .mixi_portfolio_overlay .overflow_hover_text{
+    .mixi_portfolio_overlay .overflow_hover_text {
         padding: 80px 0px 0px 0px;
     }
-
-
-
-
 }
 /* Landscape phones and portrait tablets */
-@media  (max-width: 768px) {
+@media (max-width: 768px) {
     html {
         font-size: 80%;
     }
@@ -62,35 +48,28 @@ Author URI: http://www.bootstrapthemes.co
         background-color: rgba(31, 31, 31, 0.65);
         text-align: center;
     }
-    
-    .copyright_text{
+    .copyright_text {
         text-align: center;
     }
-    .footer_socail{ 
+    .footer_socail {
         text-align: center;
     }
     .counter {
         height: auto;
     }
-    .overlay{
+    .overlay {
         height: auto;
     }
-    .counter .main_counter{
-
-
+    .counter .main_counter {
+        padding: 60px 0 0;
     }
-
-    .main_contact{
+    .main_contact {
         padding: 80px 20px;
     }
-	.home .owl-controls{
-		margin-bottom:40px;
-	}
-
+    .home .owl-controls {
+        margin-bottom: 40px;
+    }
 }
-
-
-
 /* Landscape phones and smaller */
 @media (max-width: 479px) {
     html {
@@ -105,34 +84,18 @@ Author URI: http://www.bootstrapthemes.co
     .team .single_item .single_team_overlay {
         padding: 40px 0px 10px 0px;
     }
-
 }
-
-
-
-
-
 @media (max-width: 320px) {
-
-
     html {
         font-size: 60.5%;
     }
     .form-control {
         margin-bottom: 10px;
     }
-
     .team .single_item .single_team_overlay {
         padding: 20px 0px 10px 0px;
     }
     .gellary .single_gellary_item .gellary_overlay {
         padding: 10px 0px 0px 0px;
     }
-
-
-
-
-
-
 }
-

@@ -26,6 +26,11 @@ App = {
   presses: 0,
   lastPresser: '-',
   won: 0,
+  priceMul: 0,
+  nParameter: 0,
+  charityFraction: 0,
+  jackpotFraction: 0,
+  devFraction: 0,
   totalWon: 0,
   totalCharity: 0,
   totalPresses: 0,
@@ -38,14 +43,20 @@ App = {
    * v Work with Infura when web3 provider is unavailable
    * 
    * TODO 0.6
-   * - Add N and price increase % in the details
-   * - Add charity beneficiary to details
-   * - Add accounting (fractions) to details/footer
-   * - Improve animation - test on mobile
-   *  
-   * - Adjust colors? Change colors like the original button
-   * - Adjust button animation? Disable when no web3
+   * v Add N and price increase % in the details
+   * v Add charity beneficiary to details
+   * v Add accounting (fractions) to details/footer
+   * v Improve animation - test on mobile
+   * v Adjust button animation? Disable when no web3
+   * x Adjust colors? Change colors like the original button  
+   * v Jackpot bigger and maybe on top
+   * v Charity, price, presses on one row
+   * v contract excess tokens/balance handler
+   * v Show last winner
+   * 
+   * 
    * - Add button press animation when transaction is mined
+   * 
    * 
    * TODO 1.0
    * - Add reddit page link
@@ -53,6 +64,7 @@ App = {
    * - Add FAQ Page/ quick rules popup
    * - Add stats page
    * - Social sharing image
+   * - suggest higher gas prices
    * ---
    * - Set nicknames
    * - USD prices
@@ -94,18 +106,18 @@ App = {
     // Is there an injected web3 instance?
     if (typeof web3 !== 'undefined') {
       App.web3Provider = web3.currentProvider;
+      setPressButtonStyle();
     } else {
       // If no injected web3 instance is detected, fall back to Infura
       App.noInjectedWeb3 = true;
       App.web3Provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/47xPqLd4I69lkOUz61YF');
+
     }
 
     myWeb3 = new Web3(App.web3Provider);
 
-    // if (myWeb3.isConnected()) {
-    //     userAccount = myWeb3.eth.accounts[0];
     myWeb3.version.getNetwork(checkNetwork);
-    // }
+
 
     myWeb3.version.getNetwork((err, netId) => {
       networkID = netId;
@@ -117,16 +129,16 @@ App = {
           console.log('This is the deprecated Morden test network.')
           break
         case "3":
-          console.log('This is the ropsten test network.')
+          console.log('This is the Ropsten test network.')
           break
         case "4":
-          networkName = "Rinkeby";
+          console.log('This is the Rinkeby test network.')
           break;
         case "42":
-          networkName = "Kovan";
+          console.log('This is the Kovan test network.')
           break;
         case "5777":
-          networkName = "Ganache";
+          console.log('This is the Ganache test network.')
           break;
         default:
           console.log('This is an unknown network.')
@@ -136,15 +148,12 @@ App = {
     return App.initContract();
   },
 
-  //init contracts
   initContract: function () {
 
     $.getJSON('TheButton.json', function (data) {
-      //     // Get the necessary contract artifact file and instantiate it with truffle-contract
       var TheButtonArtifact = data;
       App.contracts.TheButton = TruffleContract(TheButtonArtifact);
 
-      //     // Set the provider for our contract
       App.contracts.TheButton.setProvider(App.web3Provider);
 
       App.contracts.TheButton.deployed().then(function (instance) {
@@ -156,6 +165,7 @@ App = {
 
         ethSentEvent = contract.ETHSent();
 
+        //Events:
         pressedEvent.watch(function (error, result) {
           if (error) {
             console.log(error);
@@ -227,22 +237,17 @@ App = {
         })
 
         var accountInterval = setInterval(function () {
-          // if (myWeb3.isConnected()) {
           myWeb3.version.getNetwork(checkNetwork);
           if (typeof myWeb3.eth.defaultAccount !== 'undefined')
             if (myWeb3.eth.accounts[0] !== userAccount) {
               userAccount = myWeb3.eth.accounts[0];
-              // Call a function to update the UI with the new account
               App.refresh();
             }
-          // } else {
-          //   clearInterval(accountInterval);
-          // }
         }, 500);
 
         var updateInterval = setInterval(function () {
-          App.getData();
-        }, 5000);
+          App.refresh();
+        }, 2000);
 
       });
 
@@ -253,18 +258,16 @@ App = {
   },
 
   refresh: function () {
+    App.checkWinner();
+    App.getData();
 
-    if (typeof App.contracts.TheButton !== 'undefined') {
-      App.checkWinner();
-      App.getData();
-    }
   },
 
   handlePress: function (event) {
-    // event.preventDefault();
+    event.preventDefault();
 
     if (App.noInjectedWeb3) {
-      toastr.error("You need a web3 enabled browser to press the button!");
+      toastr.error("More info here...", "You need a web3 browser to press the button!");
       return;
     }
 
@@ -273,11 +276,9 @@ App = {
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
 
-      App.checkWinner();
       return App.getData();
     }).then(function (result) {
       if (typeof userAccount !== 'undefined') {
-
         if (winner) {
           toast = toastr.info("Withdrawing jackpot...", "",
             {
@@ -298,8 +299,6 @@ App = {
         toastr.warning("You need to unlock your account!");
       }
     }).then(function (result) {
-      //success (should be logged in the event handling)
-      // console.log(result);
       if (typeof toast !== 'undefined') {
         if (toast.text().includes('jackpot')) {
           toast.hide(200);
@@ -308,8 +307,10 @@ App = {
           toast.hide(200);
           toastr.success("You pressed the button!");
         }
+      }
 
-
+      if (typeof result == 'undefined') {
+        return;
       }
 
       if (result.receipt.status == "0x1") {
@@ -318,12 +319,11 @@ App = {
         }
         App.refresh();
       }
-
-
     }).catch(function (err) {
       if (typeof toast !== 'undefined')
-        toast.hide();
-      toastr.error("Possibly rejected transaction.", "Problem pressing the button!")
+        toast.hide(200);
+
+      toastr.error("Possibly rejected transaction.", "Problem pressing the button!");
       console.log(err.message);
     });
   },
@@ -347,6 +347,18 @@ App = {
       dead = result[3];
       presses = result[4];
       lastPresser = result[5];
+
+      return buttonInstance.latestParams.call();
+    }).then(function (result) {
+      jackpotFraction = result[0];
+      devFraction = result[1];
+      charityFraction = result[2];
+      priceMul = result[3];
+      nParameter = result[4];
+
+      return buttonInstance.lastWinner.call();
+    }).then(function (result) {
+      lastWinner = result;
 
       return buttonInstance.totalsData.call();
     }).then(function (result) {
@@ -378,8 +390,6 @@ App = {
 
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
-
-
       return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
       won = result;
@@ -400,33 +410,56 @@ App = {
     let char = formatETHString(charity);
     let totWon = formatETHString(totalWon);
     let totChar = formatETHString(totalCharity);
-    let name;
+    let presser = lastPresser;
+    let winner = lastWinner;
+    let mul = formatPercentageString(priceMul) * 100 - 100;
+    let charF = formatPercentageString(charityFraction) * 100;
+    let jackF = formatPercentageString(jackpotFraction) * 100;
+    let devF = formatPercentageString(devFraction) * 100;
 
-    if (lastPresser.length > 20) {
-      name = lastPresser.substring(0, 16) + "...";
+    if (lastPresser != '0x0000000000000000000000000000000000000000') {
+      if (presser.length > 23) {
+        presser = presser.substring(0, 19) + "...";
+      }
+
+      var presserIcon = blockies.create({ // All options are optional
+        seed: lastPresser, // seed used to generate icon data, default: random
+        size: 7, // width/height of the icon in blocks, default: 8
+        scale: 3, // width/height of each block in pixels, default: 4
+      });
+
+      setElementValue('last-presser', presser);
     }
 
-    var icon = blockies.create({ // All options are optional
-      seed: lastPresser, // seed used to generate icon data, default: random
-      size: 7, // width/height of the icon in blocks, default: 8
-      scale: 3, // width/height of each block in pixels, default: 4
-      // that look like eyes, mouths and noses.
-    });
+    if (lastWinner != '0x0000000000000000000000000000000000000000') {
+      var iconElement = document.getElementById('presser-identicon');
+      iconElement.replaceChild(presserIcon, iconElement.childNodes[0]);
 
-    // document.body.appendChild(icon); // icon is a canvas element
-
-    var iconElement = document.getElementById('identicon');
-    iconElement.replaceChild(icon, iconElement.childNodes[0]);
+      if (winner.length > 23) {
+        winner = winner.substring(0, 19) + "...";
+      }
+      var winnerIcon = blockies.create({ // All options are optional
+        seed: lastWinner, // seed used to generate icon data, default: random
+        size: 7, // width/height of the icon in blocks, default: 8
+        scale: 3, // width/height of each block in pixels, default: 4
+      });
+      setElementValue('last-winner', winner);
+      var iconElement = document.getElementById('winner-identicon');
+      iconElement.replaceChild(winnerIcon, iconElement.childNodes[0]);
+    }
 
     setElementValue('jackpot', jack);
     setElementValue('price', pri);
     setElementValue('press-count', presses);
-    setElementValue('last-presser', name);
     setElementValue('charity', char);
     setElementValue('totalWon', totWon);
     setElementValue('totalCharity', totChar);
     setElementValue('totalPresses', totalPresses);
-
+    setElementValue('priceMultiplier', mul);
+    setElementValue('nParameter', nParameter);
+    setElementValue('jackpotFraction', jackF);
+    setElementValue('charityFraction', charF);
+    setElementValue('devFraction', devF);
   }
 
 };
@@ -470,9 +503,19 @@ function setElentVisibility() {
   }
 }
 
+function setPressButtonStyle() {
+  $('#main-button').addClass('active-style');
+}
+
 function formatETHString(n) {
   n = myWeb3.fromWei(n, 'ether');
   var withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+  return withCommas;
+};
+
+function formatPercentageString(n) {
+  n = myWeb3.fromWei(n, 'ether');
+  var withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
   return withCommas;
 };
 

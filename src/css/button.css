@@ -7,7 +7,7 @@
   margin: auto;
 }
 
-#identicon {
+.identicon {
   display: inline-block;
   height: 25px;
   width: 25px;
@@ -100,7 +100,7 @@
   -moz-box-shadow: rgba( 0,0,0,0.25) 0px 1px 1px, inset rgba(0,0,0,0.35) 0px -2px 6px;
 }
 
-.button:active .outer .height {
+#main-button.active-style:active .outer .height {
   margin-top: 0px;
   padding-bottom: 0px;
 }
@@ -146,7 +146,7 @@
   /* W3C */
 }
 
-.button:active .outer .height .inner {
+#main-button.active-style:active .outer .height .inner {
   text-shadow: #319926 0px 1px 0px;
   border-radius: 130px;
   -webkit-border-radius: 130px;

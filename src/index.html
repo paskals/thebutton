@@ -43,7 +43,7 @@
 
     <script src="js/web3.min.js"></script>
     <script src="js/truffle-contract.min.js"></script>
-    
+
 </head>
 
 <body data-spy="scroll" data-target=".navbar-collapse">
@@ -117,10 +117,10 @@
                             <div class="timer-button">
                                 <canvas id="timerCanvas">
                                 </canvas>
-                                <div class="button">
-                                    <div class="outer">
+                                <div class="button" id="main-button">
+                                    <div class="outer" id="outer">
                                         <div class="height">
-                                            <div class="inner"></div>
+                                            <div class="inner" id="inner"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -142,53 +142,74 @@
                 <div class="row">
                     <div class="main_counter sections text-center">
                         <div class="col-sm-10 col-sm-offset-1">
-                            <div class="row">
+                            <div class="row jackpot-row">
                                 <div class="col-sm-12 col-xs-11">
-                                    <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
+                                    <div class="jackpot single_counter_right wow fadeInRight" data-wow-duration="1s">
                                         <!-- <i class="lnr lnr-users"></i> -->
-                                        <h2 class="currency">Ξ</h2>
-                                        <h2 id="jackpot" class="statistic-number">0.0</h2>
-                                        <p>Jackpot</p>
+                                        <h2 class="currency big">Ξ</h2>
+                                        <h2 id="jackpot" class="statistic-number big">0.0</h2>
+                                        <p class="bigger">Jackpot</p>
                                     </div>
                                 </div>
 
                             </div>
                             <div class="row">
-                                <div class="col-sm-12 col-xs-11">
+
+                                <div class="col-sm-4 col-xs-4">
                                     <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
                                         <!-- <i class="fa fa-line-chart"></i> -->
                                         <h2 class="currency smaller-statistic">Ξ</h2>
                                         <h2 id="price" class="statistic-number smaller-statistic">0.0</h2>
-                                        <p>Price</p>
+                                        <p class="smaller">Price</p>
                                     </div>
                                 </div>
+                                <div class="col-sm-4 col-xs-4">
+                                    <div class="col-sm-12 col-xs-11">
+                                        <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 class="currency smaller-statistic">Ξ</h2>
+                                            <h2 id="charity" class="statistic-number smaller-statistic">0.0</h2>
+                                            <p class="smaller">Raised for charity</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-xs-4">
+                                    <div class="col-sm-12 col-xs-11">
+                                        <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 id="press-count" class="statistic-number smaller-statistic">0</h2>
+                                            <p class="smaller">Presses</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-xs-11">
+
+                                </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-sm-12 col-xs-11">
                                     <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
                                         <!-- <i class="fa fa-line-chart"></i> -->
-                                        <h2 class="currency smaller-statistic">Ξ</h2>
-                                        <h2 id="charity" class="statistic-number smaller-statistic">0.0</h2>
-                                        <p>Raised for charity</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-xs-11">
-                                    <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
-                                        <!-- <i class="fa fa-line-chart"></i> -->
-                                        <h2 id="press-count" class="statistic-number smaller-statistic">0</h2>
-                                        <p>Presses</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-xs-11">
-                                    <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
-                                        <!-- <i class="fa fa-line-chart"></i> -->
-                                        <div id='identicon'><canvas width="30" height="30"></canvas></div>
+                                        <div class="identicon" id='presser-identicon'>
+                                            <canvas width="0" height="0"></canvas>
+                                        </div>
                                         <h2 id="last-presser" class="statistic-number smaller-statistic">-</h2>
-                                        <p>Last Presser</p>
+                                        <p class="smaller">Last Presser</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 col-xs-11">
+                                    <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
+                                        <!-- <i class="fa fa-line-chart"></i> -->
+                                        <div class="identicon" id='winner-identicon'>
+                                            <canvas width="0" height="0"></canvas>
+                                        </div>
+                                        <h2 id="last-winner" class="statistic-number smaller-statistic">-</h2>
+                                        <p class="smaller">Last Winner</p>
                                     </div>
                                 </div>
                             </div>
@@ -217,34 +238,89 @@
                     <div class="totals_counter sections text-center">
 
                         <div class="show-hide">
-                            <a href="#" id="show-hide">Show more...</a>
+                            <button href="#" id="show-hide">More info...</button>
                         </div>
 
                         <div id="totals" hidden>
-                            <div class="row">
 
-                                <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right ">
-                                        <!-- <i class="fa fa-line-chart"></i> -->
-                                        <h2 class="currency total-statistic">Ξ</h2>
-                                        <h2 id="totalWon" class="statistic-number total-statistic">0.0</h2>
-                                        <p>Total won</p>
+                            <div>
+
+                                <div class="row totalsRow">
+                                    <div class="col-sm-12 col-xs-11">
+                                        <div class="rules single_counter_right">
+                                            <p class="bigger">The price will increase by
+                                                <a id="priceMultiplier">-</a>% every
+                                                <a id="nParameter">-</a> presses. </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right">
-                                        <!-- <i class="fa fa-line-chart"></i> -->
-                                        <h2 class="currency total-statistic">Ξ</h2>
-                                        <h2 id="totalCharity" class="statistic-number total-statistic">0.0</h2>
-                                        <p>Total raised for charity</p>
-                                    </div>
+
                                 </div>
 
-                                <div class="col-sm-4 col-xs-4">
-                                    <div class="counter_right">
-                                        <!-- <i class="fa fa-line-chart"></i> -->
-                                        <h2 id="totalPresses" class="statistic-number total-statistic">0</h2>
-                                        <p>Total presses</p>
+                                <div class="row totalsRow">
+                                    <div class="col-sm-12 col-xs-11">
+                                        <div class="rules single_counter_right">
+                                            <p class="bigger">Charity beneficiary:
+                                                <a href="https://giveth.io/" target="_blank">Giveth.io</a>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row totalsRow">
+
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right ">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+
+                                            <h2 id="jackpotFraction" class="statistic-number total-statistic">-</h2>
+                                            <h2 class="currency total-statistic">%</h2>
+                                            <p class="smaller">Goes to the Jackpot</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 id="charityFraction" class="statistic-number total-statistic">-</h2>
+                                            <h2 class="currency total-statistic">%</h2>
+                                            <p class="smaller">Goes to Charity</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 id="devFraction" class="statistic-number total-statistic">-</h2>
+                                            <h2 class="currency total-statistic">%</h2>
+                                            <p class="smaller">To feed the devs</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" totalsRow>
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right ">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 class="currency total-statistic">Ξ</h2>
+                                            <h2 id="totalWon" class="statistic-number total-statistic">0.0</h2>
+                                            <p class="smaller">Total won</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 class="currency total-statistic">Ξ</h2>
+                                            <h2 id="totalCharity" class="statistic-number total-statistic">0.0</h2>
+                                            <p class="smaller">Total raised for charity</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4 col-xs-4">
+                                        <div class="counter_right">
+                                            <!-- <i class="fa fa-line-chart"></i> -->
+                                            <h2 id="totalPresses" class="statistic-number total-statistic">0</h2>
+                                            <p class="smaller">Total presses</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -265,16 +341,20 @@
 
                     <div class="col-sm-6 col-xs-12">
                         <div class="copyright_text">
-                            <p class=" wow fadeInRight" data-wow-duration="1s">Bottom message.</p>
+                            <a href="https://ropsten.etherscan.io/address/0x62A175bDf13a03F20CAeA4463c93B4B4bc79499A" target="_blank" class=" wow fadeInRight"
+                                data-wow-duration="1s">Contract: 0x62A175bDf13a03F20CAeA4463c93B4B4bc79499A</a>
+
                         </div>
                     </div>
 
                     <div class="col-sm-6 col-xs-12">
                         <div class="footer_socail">
                             <a href="">
-                                <i class="fa fa-facebook"></i>
+                                <a href="https://www.reddit.com/r/TheButtonCo/" target="_blank">
+                                    <i class="fa fa-reddit"></i>
+                                </a>
+                                <!-- <i class="fa fa-twitter"></i>                                 -->
                             </a>
-
                         </div>
                     </div>
                 </div>
