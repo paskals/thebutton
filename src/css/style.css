@@ -8,8 +8,7 @@ Author URI: http://bootstrapthemes.co
 #show-hide {
     text-align: center;
     height: ;
-    width: 100%;
-    color: #FFFFFF;
+    color: #000000;
     font-size: 11px;
 }
 .show-hide {
@@ -523,7 +522,16 @@ input::-ms-input-placeholder {
     padding: 60px 0 20px;
 }
 .smaller-statistic {
-    font-size: 25px;
+    font-size: 23px;
+}
+.big {
+    font-size: 55px;
+}
+.bigger {
+    font-size: 20px;
+}
+.smaller {
+    font-size: 11px;
 }
 .home .main_home {
     padding-top: 250px;
@@ -742,12 +750,16 @@ input::-ms-input-placeholder {
     overflow: hidden;
 }
 .counter .main_counter {
-    padding: 60px 30px 0;
+    padding: 60px 70px 0;
 }
 .counter .main_counter .single_counter_right {
     margin-top: 15px;
     overflow: hidden;
     display: block;
+}
+.jackpot-row {
+    margin-bottom: 12px;
+    margin-top: -12px;
 }
 .counter .main_counter .single_counter_right i {
     color: #FEFEFE;
@@ -788,6 +800,10 @@ input::-ms-input-placeholder {
     /*overflow: hidden;*/
     /*display: block;*/
     margin-bottom: 60px;
+}
+.totalsRow {
+    margin-bottom: 22px;
+    margin-top: 16px;
 }
 .counter .main_counter .single_counter_right p {
     color: #FEFEFE;
@@ -851,12 +867,16 @@ input::-ms-input-placeholder {
     left: 0;
     padding-top: 5px;
 }
-.copyright_text p {
+.copyright_text {
     color: #AAA79E;
     font-size: 0.8125rem;
     line-height: 25px;
     padding: 10px;
     max-width: 100%;
+    text-align: center;
+    line-height: 1.3;
+}
+.rules {
 }
 .copyright_text p i {
     padding: 0px 10px;
@@ -871,7 +891,7 @@ input::-ms-input-placeholder {
     text-align: center;
 }
 .footer_socail a i {
-    font-size: 0.8125rem;
+    font-size: 1.4rem;
     color: #FFF;
     padding: 0px 10px;
 }
