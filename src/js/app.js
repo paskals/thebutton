@@ -36,25 +36,6 @@ App = {
   totalPresses: 0,
 
   /**
-   * TODO 0.5
-   * v Keep notification visible until transaction is mined
-   * v Update data/UI on timer end
-   * v Check result after press transaction instead of at event
-   * v Work with Infura when web3 provider is unavailable
-   * 
-   * TODO 0.6
-   * v Add N and price increase % in the details
-   * v Add charity beneficiary to details
-   * v Add accounting (fractions) to details/footer
-   * v Improve animation - test on mobile
-   * v Adjust button animation? Disable when no web3
-   * x Adjust colors? Change colors like the original button  
-   * v Jackpot bigger and maybe on top
-   * v Charity, price, presses on one row
-   * v contract excess tokens/balance handler
-   * v Show last winner
-   * 
-   * 
    * - Add button press animation when transaction is mined
    * 
    * 
@@ -418,8 +399,8 @@ App = {
     let devF = formatPercentageString(devFraction) * 100;
 
     if (lastPresser != '0x0000000000000000000000000000000000000000') {
-      if (presser.length > 23) {
-        presser = presser.substring(0, 19) + "...";
+      if (presser.length > 26) {
+        presser = presser.substring(0, 22) + "...";
       }
 
       var presserIcon = blockies.create({ // All options are optional
@@ -435,8 +416,8 @@ App = {
       var iconElement = document.getElementById('presser-identicon');
       iconElement.replaceChild(presserIcon, iconElement.childNodes[0]);
 
-      if (winner.length > 23) {
-        winner = winner.substring(0, 19) + "...";
+      if (winner.length > 26) {
+        winner = winner.substring(0, 22) + "...";
       }
       var winnerIcon = blockies.create({ // All options are optional
         seed: lastWinner, // seed used to generate icon data, default: random

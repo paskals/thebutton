@@ -12,7 +12,7 @@ Author URI: http://bootstrapthemes.co
     font-size: 11px;
 }
 .show-hide {
-    margin: 0 0 20px 0;
+    margin: 0;
 }
 html,
 body {
@@ -33,12 +33,12 @@ img {
     -webkit-user-drag: none;
     user-drag: none;
 }
-a,
 a:hover,
 a:active,
 a:focus {
     text-decoration: none;
     outline: none;
+    font-weight: bold;
 }
 a,
 button,
@@ -166,6 +166,9 @@ p {
 p:last-child {
     margin-bottom: 0px;
 }
+.stats-text {
+    font-size: 18px;
+}
 .home-wrap h2,
 .home-wrap h3,
 .home-wrap h4,
@@ -207,6 +210,7 @@ Section
     padding-top: 85px;
     padding-bottom: 105px;
     overflow: hidden;
+    /*width: 600px;*/
 }
 .sections.footer {
     padding-bottom: 80px;
@@ -750,7 +754,7 @@ input::-ms-input-placeholder {
     overflow: hidden;
 }
 .counter .main_counter {
-    padding: 60px 70px 0;
+    padding: 60px 30px 0;
 }
 .counter .main_counter .single_counter_right {
     margin-top: 15px;
@@ -795,11 +799,13 @@ input::-ms-input-placeholder {
 }
 .totals_counter {
     color: #FDFDFD;
-    padding: 0px 30px 0;
+    padding: 0px 0 0;
     margin-top: 30px;
     /*overflow: hidden;*/
     /*display: block;*/
     margin-bottom: 60px;
+    /*margin-right: 70px;*/
+    /*margin-left: 70px;*/
 }
 .totalsRow {
     margin-bottom: 22px;
