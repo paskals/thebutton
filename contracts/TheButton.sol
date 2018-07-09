@@ -340,7 +340,7 @@ contract ButtonBase is DSAuth, Accounting {
     ///Charity beneficiary can only be changed every 25 weeks
     function setCharityBeneficiary(address _charity) public 
     auth
-    timeLimited(25 weeks) 
+    timeLimited(5 weeks) 
     {   
         require(_charity != address(0));
         charityBeneficiary = _charity;
@@ -380,7 +380,7 @@ contract TheButton is ButtonBase {
     bool public stopped;
 
     constructor() public {
-
+        stopped = true;
     }
 
     /// Press logic

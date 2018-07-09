@@ -5,11 +5,23 @@ Author URI: http://bootstrapthemes.co
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+.bottom-statistic {
+    text-align: center;
+    display: inline-block;
+    color: #FFFFFF;
+    margin-bottom: 0;
+}
+.bottom-text {
+    font-size: 11px;
+}
+.bottom {
+    margin-top: 4px;
+}
 #show-hide {
     text-align: center;
     height: ;
-    color: #000000;
-    font-size: 11px;
+    color: #FFFFFF;
+    font-size: 12px;
 }
 .show-hide {
     margin: 0;
@@ -33,12 +45,12 @@ img {
     -webkit-user-drag: none;
     user-drag: none;
 }
+a,
 a:hover,
 a:active,
 a:focus {
     text-decoration: none;
     outline: none;
-    font-weight: bold;
 }
 a,
 button,
@@ -162,6 +174,7 @@ h6 {
 p {
     line-height: 1;
     font-size: 0.875rem;
+    color: #FFFFFF;
 }
 p:last-child {
     margin-bottom: 0px;
@@ -757,12 +770,12 @@ input::-ms-input-placeholder {
     padding: 60px 30px 0;
 }
 .counter .main_counter .single_counter_right {
-    margin-top: 15px;
+    /*margin-top: 15px;*/
     overflow: hidden;
     display: block;
 }
 .jackpot-row {
-    margin-bottom: 12px;
+    margin-bottom: 26px;
     margin-top: -12px;
 }
 .counter .main_counter .single_counter_right i {
@@ -782,6 +795,7 @@ input::-ms-input-placeholder {
     margin-bottom: 5px;
     line-height: 1;
     height: auto;
+    text-align: center;
 }
 .currency {
     font-family: Helvetica;
@@ -800,10 +814,10 @@ input::-ms-input-placeholder {
 .totals_counter {
     color: #FDFDFD;
     padding: 0px 0 0;
-    margin-top: 30px;
+    /*margin-top: 22px;*/
     /*overflow: hidden;*/
     /*display: block;*/
-    margin-bottom: 60px;
+    margin-bottom: 62px;
     /*margin-right: 70px;*/
     /*margin-left: 70px;*/
 }
@@ -897,7 +911,7 @@ input::-ms-input-placeholder {
     text-align: center;
 }
 .footer_socail a i {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     color: #FFF;
     padding: 0px 10px;
 }
