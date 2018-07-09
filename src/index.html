@@ -15,11 +15,11 @@
 
     <!--  Essential META Tags -->
 
-    <meta property="og:title" content="TheButton.co - an ethereum dApp">
+    <meta property="og:title" content="TheButton.co - an ethereum game">
     <meta property="og:description" content="Be the last presser and win the jackpot!">
-    <meta property="og:image" content="thumbnail.jpg">
+    <meta property="og:image" content="images/social-image.jpg">
     <meta property="og:url" content="http://thebutton.co/index.html">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="images/social-image.jpg">
 
     <meta property="og:site_name" content="THΞ BUTTON">
     <meta name="twitter:image:alt" content="TheButton.co">
@@ -152,7 +152,7 @@
     <section id="counter" class="counter">
         <div class="overlay">
             <div class="container-center">
-                <div class="row">
+                <!-- <div class="row"> -->
                     <div class="main_counter sections text-center">
                         <div class="col-sm-10 col-sm-offset-1">
                             <div class="row jackpot-row">
@@ -227,7 +227,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            <!-- </div> -->
         </div>
 
     </section>
@@ -248,36 +248,13 @@
 
                     <div class="totals_counter sections text-center">
 
-                        <div class="show-hide">
-                            <button href="#" id="show-hide">More info...</button>
+                        <div class="single_counter_right wow fadeInRight" data-wow-duration="1s" >
+                            <a class="show-hide" href="#" id="show-hide">More info...</a>
                         </div>
 
                         <div id="totals" hidden>
 
                             <div class="col-sm-10 col-sm-offset-1">
-
-                                <div class="row totalsRow">
-                                    <div class="col-sm-6 col-xs-6">
-                                        <div class="rules single_counter_right">
-                                            <p class="stats-text text-center">The price will increase by
-                                                <a id="priceMultiplier">-</a>% every
-                                                <a id="nParameter">-</a> presses. </p>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-xs-6">
-                                        <div class="rules single_counter_right">
-                                            <p class="stats-text text-center">Charity beneficiary:
-                                                <a href="https://giveth.io/" target="_blank">Giveth.io</a>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <!-- <div class="row totalsRow">
-                                    
-
-                                </div> -->
 
                                 <div class="row totalsRow">
 
@@ -309,10 +286,27 @@
                                     </div>
                                 </div>
 
-                                <div class="row" totalsRow>
+                                <div class="row totalsRow">
+                                    <div class="col-sm-6 col-xs-6">
+                                        <div class="rules single_counter_right">
+                                            <p class="stats-text text-center">The price will increase by
+                                                <a id="priceMultiplier">-</a>% every
+                                                <a id="nParameter">-</a> presses. </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-6">
+                                        <div class="rules single_counter_right">
+                                            <p class="stats-text text-center">Charity beneficiary:
+                                                <a href="https://giveth.io/" target="_blank">Giveth.io</a>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- <div class="row totalsRow">
                                     <div class="col-sm-4 col-xs-4">
                                         <div class="counter_right ">
-                                            <!-- <i class="fa fa-line-chart"></i> -->
                                             <h2 class="currency total-statistic">Ξ</h2>
                                             <h2 id="totalWon" class="statistic-number total-statistic">0.0</h2>
                                             <p class="smaller">Total won</p>
@@ -320,7 +314,6 @@
                                     </div>
                                     <div class="col-sm-4 col-xs-4">
                                         <div class="counter_right">
-                                            <!-- <i class="fa fa-line-chart"></i> -->
                                             <h2 class="currency total-statistic">Ξ</h2>
                                             <h2 id="totalCharity" class="statistic-number total-statistic">0.0</h2>
                                             <p class="smaller">Total raised for charity</p>
@@ -329,12 +322,11 @@
 
                                     <div class="col-sm-4 col-xs-4">
                                         <div class="counter_right">
-                                            <!-- <i class="fa fa-line-chart"></i> -->
                                             <h2 id="totalPresses" class="statistic-number total-statistic">0</h2>
                                             <p class="smaller">Total presses</p>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -351,15 +343,38 @@
             <div class="main_footer">
                 <div class="row">
 
-                    <div class="col-sm-6 col-xs-12">
+                    <div  class="col-sm-4 col-xs-3 single_counter_right wow fadeInRight" data-wow-duration="1s">
                         <div class="copyright_text">
                             <a href="https://ropsten.etherscan.io/address/0x62A175bDf13a03F20CAeA4463c93B4B4bc79499A" target="_blank" class=" wow fadeInRight"
-                                data-wow-duration="1s">Contract: 0x62A175bDf13a03F20CAeA4463c93B4B4bc79499A</a>
+                                data-wow-duration="1s">Contract Code</a>
 
                         </div>
                     </div>
+                    <div class="col-sm-4 col-xs-12 bottom single_counter_right wow fadeInRight" data-wow-duration="1s">
+                        <div class="col-sm-4 col-xs-4">
+                            <div class="counter_right ">
+                                <h2 class="currency bottom-statistic bottom-text">Ξ</h2>
+                                <h2 id="totalWon" class="statistic-number bottom-statistic bottom-text">0.0</h2>
+                                <p class="bottom-text">Total won</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <div class="counter_right">
+                                <h2 class="currency bottom-statistic bottom-text">Ξ</h2>
+                                <h2 id="totalCharity" class="statistic-number bottom-statistic bottom-text">0.0</h2>
+                                <p class="bottom-text" >Total charity</p>
+                            </div>
+                        </div>
 
-                    <div class="col-sm-6 col-xs-12">
+                        <div class="col-sm-4 col-xs-4">
+                            <div class="counter_right">
+                                <h2 id="totalPresses" class="statistic-number bottom-statistic bottom-text">0</h2>
+                                <p class="bottom-text">Total presses</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-4 col-xs-3 single_counter_right wow fadeInRight" data-wow-duration="1s">
                         <div class="footer_socail">
                             <a href="">
                                 <a href="https://www.reddit.com/r/TheButtonCo/" target="_blank">

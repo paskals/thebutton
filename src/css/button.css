@@ -207,3 +207,14 @@ html {
   text-align: center;
   display: none;
 }
+
+.show-hide:hover {
+  outline-offset: -2px;
+}
+
+.show-hide:active {
+  /*outline: thin dotted #444;*/
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+  text-shadow: 0 0 3px;
+}
