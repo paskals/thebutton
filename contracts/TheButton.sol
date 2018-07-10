@@ -1,6 +1,6 @@
 pragma solidity^0.4.23;
 
-import "./lib/ds-auth/src/auth.sol";
+import "./lib/auth.sol";
 import "./accounting/contracts/Accounting.sol";
 
 ///Base contract with all the events, getters, and simple logic
