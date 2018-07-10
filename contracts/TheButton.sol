@@ -17,11 +17,11 @@ contract ButtonBase is DSAuth, Accounting {
 
     uint public totalPresses;
 
-    ///Button parameters
-    uint public startingPrice = 1 finney;
-    uint internal _priceMultiplier = 105 * 10 **16;
-    uint32 internal _n = 3; //increase the price after every n presses
-    uint32 internal _period = 3 minutes;// what's the period for pressing the button
+    ///Button parameters - note that these can change
+    uint public startingPrice = 2 finney;
+    uint internal _priceMultiplier = 106 * 10 **16;
+    uint32 internal _n = 4; //increase the price after every n presses
+    uint32 internal _period = 30 minutes;// what's the period for pressing the button
     uint internal _newCampaignFraction = ONE_PERCENT_WAD; //1%
     uint internal _devFraction = 10 * ONE_PERCENT_WAD - _newCampaignFraction; //9%
     uint internal _charityFraction = 5 * ONE_PERCENT_WAD; //5%
@@ -105,6 +105,16 @@ contract ButtonBase is DSAuth, Accounting {
 
     ///Getters:
 
+    ///Check if there's an active campaign
+    function active() public view returns(bool) {
+        if(campaigns.length == 0) { 
+            return false;
+        } else {
+            return campaigns[lastCampaignID].deadline >= now;
+        }
+    }
+
+    ///Get information about the latest campaign or the next campaign if the last campaign has ended, but no new one has started
     function latestData() external view returns(
         uint price, uint jackpot, uint char, uint64 deadline, uint presses, address lastPresser
         ) {
@@ -116,6 +126,7 @@ contract ButtonBase is DSAuth, Accounting {
         lastPresser = this.lastPresser();
     }
 
+    ///Get the latest parameters
     function latestParams() external view returns(
         uint jackF, uint revF, uint charF, uint priceMul, uint nParam
     ) {
@@ -126,6 +137,7 @@ contract ButtonBase is DSAuth, Accounting {
         nParam = this.n();
     }
 
+    ///Get the last winner address
     function lastWinner() external view returns(address) {
         if(campaigns.length == 0) {
             return address(0x0);
@@ -138,12 +150,14 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    ///Get the total stats (cumulative for all campaigns)
     function totalsData() external view returns(uint _totalWon, uint _totalCharity, uint _totalPresses) {
-        _totalWon = totalWon;
-        _totalCharity = totalCharity;
+        _totalWon = this.totalWon();
+        _totalCharity = this.totalCharity();
         _totalPresses = this.totalPresses();
     }
    
+   /// The latest price for pressing the button
     function price() external view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].price;
@@ -152,6 +166,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest jackpot fraction - note the fractions can be changed, but they don't affect any currently running campaign
     function jackpotFraction() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].jackpotFraction;
@@ -160,6 +175,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest revenue fraction
     function revenueFraction() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].devFraction;
@@ -168,6 +184,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest charity fraction
     function charityFraction() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].charityFraction;
@@ -176,6 +193,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest price multiplier
     function priceMultiplier() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].priceMultiplier;
@@ -184,6 +202,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest preiod
     function period() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].period;
@@ -192,6 +211,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// The latest N - the price will increase every Nth presses
     function n() public view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].n;
@@ -200,6 +220,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// How much time is left in seconds if there's a running campaign
     function timeLeft() external view returns(uint) {
         if (active()) {
             return campaigns[lastCampaignID].deadline - now;
@@ -208,18 +229,12 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// What is the latest campaign's deadline
     function deadline() external view returns(uint64) {
         return campaigns[lastCampaignID].deadline;
     }
 
-    function jackpot() external view returns(uint) {
-        if(!campaigns[lastCampaignID].finalized) {
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].jackpotFraction);
-        } else {
-            return nextCampaign.balanceETH.wmul(_jackpotFraction);
-        }
-    }
-
+    /// The number of presses for the current campaign
     function presses() external view returns(uint) {
         if(active()) {
             return campaigns[lastCampaignID].presses;
@@ -228,6 +243,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
+    /// Last presser
     function lastPresser() external view returns(address) {
         // if(campaigns.length != 0) {
         return campaigns[lastCampaignID].lastPresser;
@@ -236,10 +252,63 @@ contract ButtonBase is DSAuth, Accounting {
         // }
     }
 
+    /// Returns the winner for any given campaign ID
     function winner(uint campaignID) external view returns(address) {
         return campaigns[campaignID].lastPresser;
     }
 
+    /// The current (or next) campaign's jackpot
+    function jackpot() external view returns(uint) {
+        if(active()){
+            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].jackpotFraction);
+        } else {
+            if(!campaigns[lastCampaignID].finalized) {
+                return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].jackpotFraction)
+                    .wmul(campaigns[lastCampaignID].newCampaignFraction);
+            } else {
+                return nextCampaign.balanceETH.wmul(_jackpotFraction);
+            }
+        }
+    }
+
+    ///Current/next campaign charity balance
+    function charityBalance() external view returns(uint) {
+        if(active()){
+            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction);
+        } else {
+            if(!campaigns[lastCampaignID].finalized) {
+                return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction)
+                    .wmul(campaigns[lastCampaignID].newCampaignFraction);
+            } else {
+                return nextCampaign.balanceETH.wmul(_charityFraction);
+            }
+        }
+    }
+
+    //Current/next campaign revenue balance
+    function revenueBalance() external view returns(uint) {
+        if(active()){
+            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction);
+        } else {
+            if(!campaigns[lastCampaignID].finalized) {
+                return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction)
+                    .wmul(campaigns[lastCampaignID].newCampaignFraction);
+            } else {
+                return nextCampaign.balanceETH.wmul(_devFraction);
+            }
+        }
+    }
+
+    /// The starting balance of the next campaign
+    function nextCampaignBalance() external view returns(uint) {        
+        if(!campaigns[lastCampaignID].finalized) {
+            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].newCampaignFraction);
+        } else {
+            return nextCampaign.balanceETH.wmul(_devFraction);
+        }
+    }
+
+    /// Total cumulative presses for all campaigns
     function totalPresses() external view returns(uint) {
         if (!campaigns[lastCampaignID].finalized) {
             return totalPresses.add(campaigns[lastCampaignID].presses);
@@ -248,71 +317,91 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    function charityBalance() external view returns(uint) {
-        if(!campaigns[lastCampaignID].finalized) {
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction);
-        } else {
-            return nextCampaign.balanceETH.wmul(_charityFraction);
-        }
-    }
-
-    function revenueBalance() external view returns(uint) {
-        if(!campaigns[lastCampaignID].finalized) {
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction);
-        } else {
-            return nextCampaign.balanceETH.wmul(_devFraction);
-        }
-    }
-
-    function nextCampaignBalance() external view returns(uint) {
-        if(active()) {
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].newCampaignFraction);
-        } else {
-            return nextCampaign.balanceETH;
-        }
-    }
-
+    /// Total cumulative charity for all campaigns
     function totalCharity() external view returns(uint) {
-        return totalCharity.add(this.charityBalance());
-    }
-
-    function totalRevenue() external view returns(uint) {
-        return totalRevenue.add(this.revenueBalance());
-    }
-
-    function active() public view returns(bool) {
-        if(campaigns.length == 0) { 
-            return false;
+        if (!campaigns[lastCampaignID].finalized) {
+            return totalCharity.add(campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction));
         } else {
-            return campaigns[lastCampaignID].deadline >= now;
+            return totalCharity;
         }
     }
 
+    /// Total cumulative revenue for all campaigns
+    function totalRevenue() external view returns(uint) {
+        if (!campaigns[lastCampaignID].finalized) {
+            return totalRevenue.add(campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction));
+        } else {
+            return totalRevenue;
+        }
+    }
+
+    // /// Total won for all campaigns
+    // function totalWon() external view returns(uint) {
+    //     return totalWon;
+       
+    // }
+
+    /// Returns the balance of any winner
     function hasWon(address _guy) external view returns(uint) {
         return winners[_guy].balanceETH;
     }
 
+    /// Functions for handling value
+
+    /// Withdrawal function for winners
     function withdrawJackpot() public {
         require(winners[msg.sender].balanceETH > 0, "Nothing to withdraw!");
         sendETH(winners[msg.sender], msg.sender, winners[msg.sender].balanceETH);
     }
 
+    /// Any winner can chose to donate their jackpot
     function donateJackpot() public {
         require(winners[msg.sender].balanceETH > 0, "Nothing to donate!");
         transferETH(winners[msg.sender], charity, winners[msg.sender].balanceETH);
     }
 
+    /// Dev revenue withdrawal function
     function withdrawRevenue() public auth {
         sendETH(revenue, owner, revenue.balanceETH);
     }
 
+    /// Dev charity transfer function - sends all of the charity balance to the pre-set charity address
+    /// Note that there's nothing stopping the devs to wait and set the charity beneficiary to their own address
+    /// and drain the charity balance for themselves. We would not do that as it would not make sense and it would
+    /// damage our reputation, but this is the only "weak" spot of the contract where it requires trust in the devs
     function sendCharityETH(bytes callData) public auth {
         // donation receiver might be a contract, so transact instead of a simple send
         transact(charity, charityBeneficiary, charity.balanceETH, callData);
     }
 
+     /// This allows the owner to withdraw surplus ETH
+    function redeemSurplusETH() public auth {
+        uint surplus = address(this).balance.sub(totalETH);
+        balanceETH(base, surplus);
+        sendETH(base, msg.sender, base.balanceETH);
+    }
+
+    /// This allows the owner to withdraw surplus Tokens
+    function redeemSurplusERC20(address token) public auth {
+        uint realTokenBalance = ERC20(token).balanceOf(this);
+        uint surplus = realTokenBalance.sub(totalTokenBalances[token]);
+        balanceToken(base, token, surplus);
+        sendToken(base, token, msg.sender, base.tokenBalances[token]);
+    }
+
+    /// withdraw surplus ETH
+    function withdrawBaseETH() public auth {
+        sendETH(base, msg.sender, base.balanceETH);
+    }
+
+    /// withdraw surplus tokens
+    function withdrawBaseERC20(address token) public auth {
+        sendToken(base, token, msg.sender, base.tokenBalances[token]);
+    }
+
     ///Setters
 
+    /// Set button parameters
     function setButtonParams(uint startingPrice_, uint priceMul_, uint32 period_, uint32 n_) public 
     auth
     limited(startingPrice_, 1 szabo, 10 ether) ///Parameters are limited
@@ -341,41 +430,19 @@ contract ButtonBase is DSAuth, Accounting {
         emit AccountingParamsChanged(_devF, _charityF, _jackpotFraction);
     }
 
-    ///Charity beneficiary can only be changed every 25 weeks
+    ///Charity beneficiary can only be changed every 13 weeks
     function setCharityBeneficiary(address _charity) public 
     auth
-    timeLimited(5 weeks) 
+    timeLimited(13 weeks) 
     {   
         require(_charity != address(0));
         charityBeneficiary = _charity;
         emit CharityChanged(_charity);
     }
 
-    /// This allows the owner to withdraw surplus ETH
-    function redeemSurplusETH() public auth {
-        uint surplus = address(this).balance.sub(totalETH);
-        balanceETH(base, surplus);
-    }
-
-    /// This allows the owner to withdraw surplus Tokens
-    function redeemSurplusERC20(address token) public auth {
-        uint realTokenBalance = ERC20(token).balanceOf(this);
-        uint surplus = realTokenBalance.sub(totalTokenBalances[token]);
-        balanceToken(base, token, surplus);
-    }
-
-    /// withdraw surplus ETH
-    function withdrawBaseETH() public auth {
-        sendETH(base, msg.sender, base.balanceETH);
-    }
-
-    /// withdraw surplus tokens
-    function withdrawBaseERC20(address token) public auth {
-        sendToken(base, token, msg.sender, base.tokenBalances[token]);
-    }
-
 }
 
+/// Main contract with key logic
 contract TheButton is ButtonBase {
     
     using DSMath for uint;
@@ -418,6 +485,7 @@ contract TheButton is ButtonBase {
         if(!active()) {//if not active
             _newCampaign();//start new campaign
             c = campaigns[lastCampaignID];
+            _press(c);
             depositETH(c.total, msg.sender, msg.value);// deposit ETH
         }
     }
@@ -426,12 +494,14 @@ contract TheButton is ButtonBase {
     function stop() external auth {
         stopped = true;
     }
-
-    function finalizeLastCampaign() external {//Anyone can finalize campaigns in case the devs stop the contract
+    
+    /// Anyone can finalize campaigns in case the devs stop the contract
+    function finalizeLastCampaign() external {
         require(stopped);
         ButtonCampaign storage c = campaigns[lastCampaignID];
         _finalizeCampaign(c);
     }
+
 
     function finalizeCampaign(uint id) external {
         require(stopped);
@@ -439,7 +509,7 @@ contract TheButton is ButtonBase {
         _finalizeCampaign(c);
     }
 
-    //Press 
+    //Press logic
     function _press(ButtonCampaign storage c) internal {
         require(c.deadline >= now, "After deadline!");//must be before the deadline
         require(msg.value >= c.price, "Not enough value!");// must have at least the price value
@@ -451,9 +521,10 @@ contract TheButton is ButtonBase {
         }           
 
         emit Pressed(msg.sender, msg.value, c.deadline - uint64(now));
-        c.deadline = uint64(now.add(c.period));// set the new deadline
+        c.deadline = uint64(now.add(c.period)); // set the new deadline
     }
 
+    /// starting a new campaign
     function _newCampaign() internal {
         require(!active(), "A campaign is already running!");
         require(_devFraction.add(_charityFraction).add(_jackpotFraction).add(_newCampaignFraction) == ONE_WAD, "Accounting is incorrect!");
@@ -471,11 +542,12 @@ contract TheButton is ButtonBase {
         c.deadline = uint64(now.add(_period));
         c.n = _n;
         c.period = _period;
-        c.total.name = keccak256(abi.encodePacked("Total", lastCampaignID));       
+        c.total.name = keccak256(abi.encodePacked("Total", lastCampaignID));//setting the name of the campaign's accaount     
         transferETH(nextCampaign, c.total, nextCampaign.balanceETH);
         emit Started(c.total.balanceETH, _period, lastCampaignID); 
     }
 
+    /// Finalize campaign logic
     function _finalizeCampaign(ButtonCampaign storage c) internal {
         require(c.deadline < now, "Before deadline!");
         require(!c.finalized, "Already finalized!");

@@ -353,9 +353,9 @@ App = {
       priceMul = result[3];
       nParameter = result[4];
 
-      return buttonInstance.lastWinner.call();
-    }).then(function (result) {
-      lastWinner = result;
+    //   return buttonInstance.lastWinner.call();
+    // }).then(function (result) {
+    //   lastWinner = result;
 
       return buttonInstance.totalsData.call();
     }).then(function (result) {
