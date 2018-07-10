@@ -40,6 +40,14 @@ Author URI: http://www.bootstrapthemes.co
 }
 /* Landscape phones and portrait tablets */
 @media (max-width: 768px) {
+    .button {
+    }
+    .big {
+        font-size: 45px;
+    }
+    .smaller-statistic {
+        font-size: 20px;
+    }
     .bottom-text {
         font-size: 9px;
     }

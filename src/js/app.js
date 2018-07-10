@@ -25,7 +25,7 @@ App = {
   myWeb3: null,
   contracts: {},
   price: 0,
-  dead: null,
+  dead: 0,
   jackpot: 0,
   charity: 0,
   presses: 0,
@@ -180,9 +180,9 @@ App = {
           }
           else {
             let name = result.args["guy"];
-            let jackpot = myWeb3.fromWei(result.args["jackpot"], 'ether');
+            let jackpot = result.args["jackpot"];
             if (name == userAccount) {
-              toastr.success("You won the jackpot of " + jackpot + " ETH!");
+              toastr.success("You won the jackpot of " + formatETHString(jackpot) + " ETH!");
             } else {
               if (name.length > 25) {
                 name = name.substring(0, 21) + "...";
@@ -202,9 +202,9 @@ App = {
           else {
             let i = result.args["i"];
             let period = result.args["period"];
-            let startingETH = myWeb3.fromWei(result.args["startingETH"], 'ether');
+            let startingETH = result.args["startingETH"];
 
-            toastr.info("Starting jackpot: " + startingETH + "ETH, Period: " + period, 'New Campaign started! ID: ' + i);
+            toastr.info("Starting jackpot: " + formatETHString(startingETH) + "ETH, Period: " + period/60 + " minutes", 'New Campaign started! ID: ' + i);
 
           }
           App.refresh();
@@ -506,7 +506,12 @@ function setPressButtonStyle() {
 
 function formatETHString(n) {
   n = myWeb3.fromWei(n, 'ether');
-  var withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+  var withCommas;
+  if (n>1.5) {
+    withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  } else {
+    withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+  }
   return withCommas;
 };
 

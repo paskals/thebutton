@@ -213,7 +213,7 @@ contract ButtonBase is DSAuth, Accounting {
     }
 
     function jackpot() external view returns(uint) {
-        if(active()) {
+        if(!campaigns[lastCampaignID].finalized) {
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].jackpotFraction);
         } else {
             return nextCampaign.balanceETH.wmul(_jackpotFraction);
@@ -229,11 +229,11 @@ contract ButtonBase is DSAuth, Accounting {
     }
 
     function lastPresser() external view returns(address) {
-        if(campaigns.length != 0) {
-            return campaigns[lastCampaignID].lastPresser;
-        } else {
-            return address(0);
-        }
+        // if(campaigns.length != 0) {
+        return campaigns[lastCampaignID].lastPresser;
+        // } else {
+        //     return address(0);
+        // }
     }
 
     function winner(uint campaignID) external view returns(address) {
@@ -241,11 +241,15 @@ contract ButtonBase is DSAuth, Accounting {
     }
 
     function totalPresses() external view returns(uint) {
-        return totalPresses.add(this.presses());
+        if (!campaigns[lastCampaignID].finalized) {
+            return totalPresses.add(campaigns[lastCampaignID].presses);
+        } else {
+            return totalPresses;
+        }
     }
 
     function charityBalance() external view returns(uint) {
-        if(active()) {
+        if(!campaigns[lastCampaignID].finalized) {
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction);
         } else {
             return nextCampaign.balanceETH.wmul(_charityFraction);
@@ -253,7 +257,7 @@ contract ButtonBase is DSAuth, Accounting {
     }
 
     function revenueBalance() external view returns(uint) {
-        if(active()) {
+        if(!campaigns[lastCampaignID].finalized) {
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction);
         } else {
             return nextCampaign.balanceETH.wmul(_devFraction);
