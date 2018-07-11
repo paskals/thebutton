@@ -8,5 +8,6 @@ module.exports = function(deployer) {
     .then(function(instance) {
     button = instance;})
     .then(function() {
-      return button.start({value: web3.toWei(1, 'ether')});});
+      // return button.start({value: web3.toWei(1, 'ether')});
+    });
 };

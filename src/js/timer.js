@@ -91,18 +91,18 @@ function drawTimer() {
 
   // circles  
 
-  // ctx.strokeStyle = 'rgb(180,60,160)';
-  // ctx.lineWidth = 8;
-  // ctx.beginPath();
-  // ctx.arc(175, 175, 100, Math.PI * arcOffset,
-  //   getArcEnd(result.p_h)
-  // );
-  // ctx.stroke();
+  ctx.strokeStyle = '#908594';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.arc(175, 175, 100, Math.PI * arcOffset,
+    getArcEnd(result.p_h)
+  );
+  ctx.stroke();
 
   ctx.strokeStyle = '#777E9E';
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(175, 175, 100, Math.PI * arcOffset,
+  ctx.arc(175, 175, 110, Math.PI * arcOffset,
     getArcEnd(result.p_m)
   );
   ctx.stroke();
@@ -110,7 +110,7 @@ function drawTimer() {
   ctx.strokeStyle = '#B5BDAF';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(175, 175, 109, Math.PI * arcOffset,
+  ctx.arc(175, 175, 118, Math.PI * arcOffset,
     getArcEnd(result.p_s)
   );
   ctx.stroke();
@@ -118,7 +118,7 @@ function drawTimer() {
   ctx.strokeStyle = '#F1F3E3';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(175, 175, 116, Math.PI * arcOffset,
+  ctx.arc(175, 175, 124, Math.PI * arcOffset,
     getArcEnd(result.p_milli)
   );
   ctx.stroke();
