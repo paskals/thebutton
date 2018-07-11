@@ -10,16 +10,17 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>THΞ BUTTON</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="This is a take on the original reddit experiment - the button. 
+    This is a smart contract-based version of the button, and the last pressser wins a jackpot">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 
     <!--  Essential META Tags -->
 
     <meta property="og:title" content="TheButton.co - an ethereum game">
     <meta property="og:description" content="Be the last presser and win the jackpot!">
-    <meta property="og:image" content="images/social-image.jpg">
-    <meta property="og:url" content="http://thebutton.co/index.html">
-    <meta name="twitter:card" content="images/social-image.jpg">
+    <meta property="og:image" content="https://paradoxdao.github.io/thebutton/src/images/social-image.jpg">
+    <meta property="og:url" content="https://paradoxdao.github.io/thebutton/src/index.html">
+    <meta name="twitter:card" content="https://paradoxdao.github.io/thebutton/src/images/social-image.jpg">
 
     <meta property="og:site_name" content="THΞ BUTTON">
     <meta name="twitter:image:alt" content="TheButton.co">
@@ -67,7 +68,7 @@
     <header id="main_menu" class="header navbar-fixed-top">
         <div class="main_menu_bg">
             <div class="container">
-                <div class="row">
+                <div class="row row-header">
                     <div class="nave_menu">
                         <nav class="navbar navbar-default" id="navmenu">
                             <div class="container-fluid">
@@ -92,7 +93,7 @@
                                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                     <ul class="nav navbar-nav navbar-right">
                                         <li>
-                                            <a href="faq.html">What's this?</a>
+                                            <a href="https://medium.com/@PaskalS/b1b03fe1e8ce" target="_blank">What's this?</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -118,7 +119,7 @@
         </div>
         <div id="network-warning" class="warning">
             <h2 id='network-warning-title' class="warning">Oops! You're on the wrong network!</h2>
-            <h3 id='network-warning-text' class="warning">Just open metamask and switch to the Ropsten Test Network.</h3>
+            <h3 id='network-warning-text' class="warning">Just open metamask and switch to the Main Ethereum Network.</h3>
             <img id="warning-img" src="images/network-warning.png" />
         </div>
         <div id="button" class="content">
@@ -335,9 +336,6 @@
         </div>
     </section>
 
-
-
-
     <footer id="footer" class="footer">
         <div class="container">
             <div class="main_footer">
@@ -345,7 +343,7 @@
 
                     <div  class="col-sm-4 col-xs-3 single_counter_right wow fadeInRight" data-wow-duration="1s">
                         <div class="copyright_text">
-                            <a href="https://ropsten.etherscan.io/address/0x62A175bDf13a03F20CAeA4463c93B4B4bc79499A" target="_blank" class=" wow fadeInRight"
+                            <a href="https://ropsten.etherscan.io/address/0x0F4AA2957a536D18562d227f06558938C87717CB" target="_blank" class=" wow fadeInRight"
                                 data-wow-duration="1s">Contract Code</a>
 
                         </div>
@@ -376,12 +374,10 @@
                     
                     <div class="col-sm-4 col-xs-3 single_counter_right wow fadeInRight" data-wow-duration="1s">
                         <div class="footer_socail">
-                            <a href="">
+                            
                                 <a href="https://www.reddit.com/r/TheButtonCo/" target="_blank">
                                     <i class="fa fa-reddit"></i>
-                                </a>
-                                <!-- <i class="fa fa-twitter"></i>                                 -->
-                            </a>
+                                </a>                          
                         </div>
                     </div>
                 </div>
@@ -401,8 +397,8 @@
     <script src="js/timer.js"></script>
     <script src="js/app.js"></script>
     <script src="js/blockies.min.js"></script>
-    <link href="toastr.css" rel="stylesheet" />
-    <script src="toastr.js"></script>
+    <link href="css/toastr.css" rel="stylesheet" />
+    <script src="js/toastr.js"></script>
 </body>
 
 </html>

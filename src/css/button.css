@@ -80,7 +80,7 @@
   height: 100%;
   margin-top: -15px;
   padding-bottom: 15px;
-  background: #39A02D;
+  background: #43B935;
   border-radius: 130px;
   -webkit-border-radius: 130px;
   -moz-border-radius: 130px;
@@ -125,9 +125,9 @@
   border-radius: 130px;
   -webkit-border-radius: 130px;
   -moz-border-radius: 130px;
-  box-shadow: inset rgba(255, 255, 255, 0.85) 0px 0px 1px;
-  -webkit-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;
-  -moz-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;
+  /*box-shadow: inset rgba(255, 255, 255, 0.85) 0px 0px 1px;*/
+  /*-webkit-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;*/
+  /*-moz-box-shadow: inset rgba(255,255,255,0.85) 0px 0px 1px;*/
   -webkit-transition: all 0.1s ease-in-out;
   -moz-transition: all 0.1s ease-in-out;
 }
