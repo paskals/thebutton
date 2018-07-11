@@ -106,7 +106,6 @@ App = {
 
     myWeb3.version.getNetwork(checkNetwork);
 
-
     myWeb3.version.getNetwork((err, netId) => {
       curNetwork = netId;
       switch (netId) {
@@ -231,7 +230,7 @@ App = {
               userAccount = myWeb3.eth.accounts[0];
               App.refresh();
             }
-        }, 500);
+        }, 1000);
 
         var updateInterval = setInterval(function () {
           App.refresh();
@@ -408,7 +407,7 @@ App = {
     let totWon = formatETHString(totalWon);
     let totChar = formatETHString(totalCharity);
     let presser = lastPresser;
-    let winner = lastWinner;
+    // let winner = lastWinner;
     let mul = formatPercentageString(priceMul) * 100 - 100;
     let charF = formatPercentageString(charityFraction) * 100;
     let jackF = formatPercentageString(jackpotFraction) * 100;
@@ -424,26 +423,25 @@ App = {
         size: 7, // width/height of the icon in blocks, default: 8
         scale: 3, // width/height of each block in pixels, default: 4
       });
-
+      
+      var iconElement = document.getElementById('presser-identicon');
+      iconElement.replaceChild(presserIcon, iconElement.childNodes[0]);
       setElementValue('last-presser', presser);
     }
 
-    if (lastWinner != '0x0000000000000000000000000000000000000000') {
-      var iconElement = document.getElementById('presser-identicon');
-      iconElement.replaceChild(presserIcon, iconElement.childNodes[0]);
-
-      if (winner.length > 26) {
-        winner = winner.substring(0, 22) + "...";
-      }
-      var winnerIcon = blockies.create({ // All options are optional
-        seed: lastWinner, // seed used to generate icon data, default: random
-        size: 7, // width/height of the icon in blocks, default: 8
-        scale: 3, // width/height of each block in pixels, default: 4
-      });
-      setElementValue('last-winner', winner);
-      var iconElement = document.getElementById('winner-identicon');
-      iconElement.replaceChild(winnerIcon, iconElement.childNodes[0]);
-    }
+    // if (lastWinner != '0x0000000000000000000000000000000000000000') {
+    //   if (winner.length > 26) {
+    //     winner = winner.substring(0, 22) + "...";
+    //   }
+    //   var winnerIcon = blockies.create({ // All options are optional
+    //     seed: lastWinner, // seed used to generate icon data, default: random
+    //     size: 7, // width/height of the icon in blocks, default: 8
+    //     scale: 3, // width/height of each block in pixels, default: 4
+    //   });
+    //   setElementValue('last-winner', winner);
+    //   var iconElement = document.getElementById('winner-identicon');
+    //   iconElement.replaceChild(winnerIcon, iconElement.childNodes[0]);
+    // }
 
     setElementValue('jackpot', jack);
     setElementValue('price', pri);
