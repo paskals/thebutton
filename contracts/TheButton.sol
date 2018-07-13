@@ -1,4 +1,4 @@
-pragma solidity^0.4.23;
+pragma solidity^0.4.24;
 
 import "./lib/auth.sol";
 import "./accounting/contracts/Accounting.sol";
@@ -475,19 +475,17 @@ contract TheButton is ButtonBase {
     }
 
     function start() external payable auth {
+        require(stopped);
         stopped = false;
         
         if(campaigns.length != 0) {//if there was a past campaign
             ButtonCampaign storage c = campaigns[lastCampaignID];
             require(c.finalized, "Last campaign not finalized!");//make sure it was finalized
-        }     
-
-        if(!active()) {//if not active
-            _newCampaign();//start new campaign
-            c = campaigns[lastCampaignID];
-            _press(c);
-            depositETH(c.total, msg.sender, msg.value);// deposit ETH
-        }
+        }             
+        _newCampaign();//start new campaign
+        c = campaigns[lastCampaignID];
+        _press(c);
+        depositETH(c.total, msg.sender, msg.value);// deposit ETH        
     }
 
     ///Stopping will only affect new campaigns, not already running ones
@@ -501,7 +499,6 @@ contract TheButton is ButtonBase {
         ButtonCampaign storage c = campaigns[lastCampaignID];
         _finalizeCampaign(c);
     }
-
 
     function finalizeCampaign(uint id) external {
         require(stopped);
@@ -552,12 +549,9 @@ contract TheButton is ButtonBase {
         require(c.deadline < now, "Before deadline!");
         require(!c.finalized, "Already finalized!");
         
-        uint totalBalance = c.total.balanceETH;
-
         if(c.presses != 0) {//If there were presses
-
-            //Handle all of the accounting
-            
+            uint totalBalance = c.total.balanceETH;
+            //Handle all of the accounting            
             transferETH(c.total, winners[c.lastPresser], totalBalance.wmul(c.jackpotFraction));
             winners[c.lastPresser].name = bytes32(c.lastPresser);
             totalWon = totalWon.add(totalBalance.wmul(c.jackpotFraction));
@@ -569,15 +563,20 @@ contract TheButton is ButtonBase {
             totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
 
             //avoiding rounding errors - just transfer the leftover
-            transferETH(c.total, nextCampaign, c.total.balanceETH);
+            // transferETH(c.total, nextCampaign, c.total.balanceETH);
 
             totalPresses = totalPresses.add(c.presses);
 
-            c.finalized = true;
             emit Winrar(c.lastPresser, totalBalance.wmul(c.jackpotFraction));
+        } 
+        // if there will be no next campaign
+        if(stopped) {
+            //transfer leftover to devs' base account
+            transferETH(c.total, base, c.total.balanceETH);
         } else {
-            // else just transfer all of the balance to the next campaign
-            transferETH(c.total, nextCampaign, totalBalance);
+            //otherwise transfer to next campaign
+            transferETH(c.total, nextCampaign, c.total.balanceETH);
         }
+        c.finalized = true;
     }
 }

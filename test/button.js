@@ -11,11 +11,8 @@ const increaseTime = addSeconds => {
 function formatETHString(n) {
     n = web3.fromWei(n, 'ether');
     var withCommas;
-    if (n>1.5) {
-      withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    } else {
-      withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
-    }
+    withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 6 });
+    
     return withCommas;
   };
 
@@ -46,11 +43,92 @@ contract('TheButton', function (accounts) {
         throw new Error("Anyone can start the button!");
     });
 
+    it("Shouldn't be able to set the charity address if you're not the owner.", async function () {   
+        try {
+            await button.setCharityBeneficiary(account_three, { from: account_two});
+        } catch(e) { 
+            // console.log(e);
+            return true;
+        }
+        throw new Error("Anyone can set the charity!");
+    });
+
+    it("Should be able to set the charity address.", async function () {   
+        
+        await button.setCharityBeneficiary(account_three, { from: account_one});
+        var charity = await button.charityBeneficiary.call({ from: account_one});
+        assert.equal(charity, account_three, "Charity address is wrong");
+    });
+
     it("Should start correctly.", async function () {        
         price = await button.price.call({from: account_one});
 
-        await button.start({ from: account_one, value: price });
+        await button.start({ from: account_one, value: price*100 });               
+    });
+
+    it("Should be able to press.", async function () {        
+        price = await button.price.call({from: account_two});
+
+        await button.press({ from: account_two, value: price });
                
+    });
+
+    it("Should be able to stop and finalize.", async function () {    
+        await button.stop({from: account_one});    
+        let period = await button.period.call();
+        await increaseTime(period.toNumber() + 1);
+
+        await button.finalizeLastCampaign({from: account_one});
+               
+    });
+
+    it("Correct accounting.", async function () {    
+        var totalCharity = await button.totalCharity.call({from: account_one});
+        var totalWon = await button.totalWon.call({from: account_one});
+        var won = await button.hasWon.call(account_two, {from: account_two});
+        var totalRevenue = await button.totalRevenue.call({from: account_one});
+        var leftover = await button.baseETHBalance.call({from: account_one});
+         
+        var presserStartingBalance = await web3.eth.getBalance(account_two);
+        var charityStartingBalance = await web3.eth.getBalance(account_three);  
+        var contractStartingBalance = await web3.eth.getBalance(button.address);
+
+        assert.equal(totalWon.toNumber(), won.toNumber(), "Actual jackpot is wrong!");
+        assert.equal(contractStartingBalance.toNumber(),
+         totalCharity.toNumber() + totalWon.toNumber() + totalRevenue.toNumber() + leftover.toNumber(),
+          "Total accounting is wrong!");
+
+        await button.withdrawJackpot({from: account_two, gasPrice: 0});
+        var finalPresserBalance = await web3.eth.getBalance(account_two);
+
+        assert.equal(presserStartingBalance.toNumber() + won.toNumber(), finalPresserBalance.toNumber(),
+        "Jackpot not withdrawn correctly!");
+
+        var ownerStartingBalance = await web3.eth.getBalance(account_one);
+        await button.withdrawRevenue({from: account_one, gasPrice: 0});
+        var finalOwnerBalance = await web3.eth.getBalance(account_one);
+
+        assert.equal(ownerStartingBalance.toNumber() + totalRevenue.toNumber(), finalOwnerBalance.toNumber(),
+        "Revenue not withdrawn correctly!");
+
+        await button.sendCharityETH("0x0", {from: account_one, gasPrice: 0});
+        var finalCharityBalance = await web3.eth.getBalance(account_three);
+
+        assert.closeTo(charityStartingBalance.toNumber() + totalCharity.toNumber(), finalCharityBalance.toNumber(),
+        1,
+        "Charity not withdrawn correctly!");
+
+        await button.withdrawBaseETH({from: account_one});
+        var finalContractBalance = await web3.eth.getBalance(button.address);
+
+        assert.equal(finalContractBalance.toNumber(), 0, "Leftover not withdrawn correctly!");
+               
+    });
+
+    it("Should start correctly.", async function () {        
+        price = await button.price.call({from: account_one});
+
+        await button.start({ from: account_one, value: price });               
     });
 
     it("Should be able to press 500 times.", async function () {  
@@ -109,6 +187,7 @@ contract('TheButton', function (accounts) {
         
     });
 
+    var winner;
     it("Should be able to finalize", async function () {  
         
         let period = await button.period.call();
@@ -133,8 +212,23 @@ contract('TheButton', function (accounts) {
         console.log("Total Charity: " + formatETHString(totals[1]));
         console.log("Total Presses: " + totals[2].toNumber());
 
+        winner = stats[5];
+
         return true;
         
+    });
+
+    it("Correct accounting again.", async function () {    
+        await button.withdrawJackpot({from: accounts[9], gasPrice: 0});
+        
+        await button.withdrawRevenue({from: account_one, gasPrice: 0});
+        
+        await button.sendCharityETH("0x0", {from: account_one, gasPrice: 0});
+        
+        await button.withdrawBaseETH({from: account_one});
+        var finalContractBalance = await web3.eth.getBalance(button.address);
+
+        assert.equal(finalContractBalance.toNumber(), 0, "Incorrect accounting");               
     });
 
 

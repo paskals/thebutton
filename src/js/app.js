@@ -273,7 +273,7 @@ App = {
       buttonInstance = instance;
 
       return App.getData();
-    }).then(function (result) {
+    }).then(function () {
       if (typeof userAccount !== 'undefined') {
         if (winner) {
           toast = toastr.info("Withdrawing jackpot...", "",
