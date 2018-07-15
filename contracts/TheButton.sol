@@ -245,11 +245,7 @@ contract ButtonBase is DSAuth, Accounting {
 
     /// Last presser
     function lastPresser() external view returns(address) {
-        // if(campaigns.length != 0) {
         return campaigns[lastCampaignID].lastPresser;
-        // } else {
-        //     return address(0);
-        // }
     }
 
     /// Returns the winner for any given campaign ID
@@ -285,18 +281,9 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    //Current/next campaign revenue balance
+    //Revenue account current balance
     function revenueBalance() external view returns(uint) {
-        if(active()){
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction);
-        } else {
-            if(!campaigns[lastCampaignID].finalized) {
-                return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction)
-                    .wmul(campaigns[lastCampaignID].newCampaignFraction);
-            } else {
-                return nextCampaign.balanceETH.wmul(_devFraction);
-            }
-        }
+        return revenue.balanceETH;
     }
 
     /// The starting balance of the next campaign
@@ -304,7 +291,7 @@ contract ButtonBase is DSAuth, Accounting {
         if(!campaigns[lastCampaignID].finalized) {
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].newCampaignFraction);
         } else {
-            return nextCampaign.balanceETH.wmul(_devFraction);
+            return nextCampaign.balanceETH;
         }
     }
 
@@ -334,12 +321,6 @@ contract ButtonBase is DSAuth, Accounting {
             return totalRevenue;
         }
     }
-
-    // /// Total won for all campaigns
-    // function totalWon() external view returns(uint) {
-    //     return totalWon;
-       
-    // }
 
     /// Returns the balance of any winner
     function hasWon(address _guy) external view returns(uint) {
@@ -374,7 +355,7 @@ contract ButtonBase is DSAuth, Accounting {
         transact(charity, charityBeneficiary, charity.balanceETH, callData);
     }
 
-     /// This allows the owner to withdraw surplus ETH
+    /// This allows the owner to withdraw surplus ETH
     function redeemSurplusETH() public auth {
         uint surplus = address(this).balance.sub(totalETH);
         balanceETH(base, surplus);

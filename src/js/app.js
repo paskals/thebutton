@@ -40,25 +40,6 @@ App = {
   totalCharity: 0,
   totalPresses: 0,
 
-  /**
-   * x Add button press animation when transaction is mined
-   * 
-   * 
-   * TODO 1.0
-   * v Add reddit page link
-   * v Add contract address to footer
-   * - automated tests for smart contract
-   * - use only ABI and address - delete TheButton.json
-   * - Add FAQ Page/ quick rules popup (link to medium article)
-   * - Add stats page
-   * v Social sharing image
-   * - suggest better gas prices
-   * ---
-   * - Set nicknames
-   * - USD prices
-   */
-
-
   init: function () {
     // Load data.
     toastr.options = {
@@ -105,32 +86,6 @@ App = {
     myWeb3 = new Web3(App.web3Provider);
 
     myWeb3.version.getNetwork(checkNetwork);
-
-    myWeb3.version.getNetwork((err, netId) => {
-      curNetwork = netId;
-      switch (netId) {
-        case "1":
-          console.log('This is mainnet')
-          break
-        case "2":
-          console.log('This is the deprecated Morden test network.')
-          break
-        case "3":
-          console.log('This is the Ropsten test network.')
-          break
-        case "4":
-          console.log('This is the Rinkeby test network.')
-          break;
-        case "42":
-          console.log('This is the Kovan test network.')
-          break;
-        case "5777":
-          console.log('This is the Ganache test network.')
-          break;
-        default:
-          console.log('This is an unknown network.')
-      }
-    });
 
     return App.initContract();
   },
@@ -256,7 +211,7 @@ App = {
     if (App.noInjectedWeb3) {
       var link;
       if(mobileAndTabletcheck()) {
-        link = "https://links.trustwalletapp.com/a/key_live_lfvIpVeI9TFWxPCqwU8rZnogFqhnzs4D?&event=openURL&url=https://thebutton.co"
+        link = "https://links.trustwalletapp.com/a/key_live_lfvIpVeI9TFWxPCqwU8rZnogFqhnzs4D?&event=openURL&url=http://thebutton.co"
       } else {
         link = "https://metamask.io";
       }
