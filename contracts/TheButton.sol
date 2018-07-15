@@ -267,7 +267,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    ///Current/next campaign charity balance
+    /// Current/next campaign charity balance
     function charityBalance() external view returns(uint) {
         if(active()){
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction);
@@ -281,7 +281,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    //Revenue account current balance
+    /// Revenue account current balance
     function revenueBalance() external view returns(uint) {
         return revenue.balanceETH;
     }
@@ -386,7 +386,7 @@ contract ButtonBase is DSAuth, Accounting {
     function setButtonParams(uint startingPrice_, uint priceMul_, uint32 period_, uint32 n_) public 
     auth
     limited(startingPrice_, 1 szabo, 10 ether) ///Parameters are limited
-    limited(priceMul_, ONE_WAD, 10 * ONE_WAD)
+    limited(priceMul_, ONE_WAD, 10 * ONE_WAD) // 100% to 10000% (1x to 10x)
     limited(period_, 30 seconds, 1 weeks)
     {
         startingPrice = startingPrice_;
@@ -456,7 +456,7 @@ contract TheButton is ButtonBase {
     }
 
     function start() external payable auth {
-        require(stopped);
+        require(stopped, "Already started!");
         stopped = false;
         
         if(campaigns.length != 0) {//if there was a past campaign
@@ -471,6 +471,7 @@ contract TheButton is ButtonBase {
 
     ///Stopping will only affect new campaigns, not already running ones
     function stop() external auth {
+        require(!stopped, "Already stopped!");
         stopped = true;
     }
     
