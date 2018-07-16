@@ -1,4 +1,4 @@
-pragma solidity^0.4.23;
+pragma solidity^0.4.24;
 
 import "./lib/auth.sol";
 import "./accounting/contracts/Accounting.sol";
@@ -245,11 +245,7 @@ contract ButtonBase is DSAuth, Accounting {
 
     /// Last presser
     function lastPresser() external view returns(address) {
-        // if(campaigns.length != 0) {
         return campaigns[lastCampaignID].lastPresser;
-        // } else {
-        //     return address(0);
-        // }
     }
 
     /// Returns the winner for any given campaign ID
@@ -271,7 +267,7 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    ///Current/next campaign charity balance
+    /// Current/next campaign charity balance
     function charityBalance() external view returns(uint) {
         if(active()){
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].charityFraction);
@@ -285,18 +281,9 @@ contract ButtonBase is DSAuth, Accounting {
         }
     }
 
-    //Current/next campaign revenue balance
+    /// Revenue account current balance
     function revenueBalance() external view returns(uint) {
-        if(active()){
-            return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction);
-        } else {
-            if(!campaigns[lastCampaignID].finalized) {
-                return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].devFraction)
-                    .wmul(campaigns[lastCampaignID].newCampaignFraction);
-            } else {
-                return nextCampaign.balanceETH.wmul(_devFraction);
-            }
-        }
+        return revenue.balanceETH;
     }
 
     /// The starting balance of the next campaign
@@ -304,7 +291,7 @@ contract ButtonBase is DSAuth, Accounting {
         if(!campaigns[lastCampaignID].finalized) {
             return campaigns[lastCampaignID].total.balanceETH.wmul(campaigns[lastCampaignID].newCampaignFraction);
         } else {
-            return nextCampaign.balanceETH.wmul(_devFraction);
+            return nextCampaign.balanceETH;
         }
     }
 
@@ -334,12 +321,6 @@ contract ButtonBase is DSAuth, Accounting {
             return totalRevenue;
         }
     }
-
-    // /// Total won for all campaigns
-    // function totalWon() external view returns(uint) {
-    //     return totalWon;
-       
-    // }
 
     /// Returns the balance of any winner
     function hasWon(address _guy) external view returns(uint) {
@@ -374,7 +355,7 @@ contract ButtonBase is DSAuth, Accounting {
         transact(charity, charityBeneficiary, charity.balanceETH, callData);
     }
 
-     /// This allows the owner to withdraw surplus ETH
+    /// This allows the owner to withdraw surplus ETH
     function redeemSurplusETH() public auth {
         uint surplus = address(this).balance.sub(totalETH);
         balanceETH(base, surplus);
@@ -405,7 +386,7 @@ contract ButtonBase is DSAuth, Accounting {
     function setButtonParams(uint startingPrice_, uint priceMul_, uint32 period_, uint32 n_) public 
     auth
     limited(startingPrice_, 1 szabo, 10 ether) ///Parameters are limited
-    limited(priceMul_, ONE_WAD, 10 * ONE_WAD)
+    limited(priceMul_, ONE_WAD, 10 * ONE_WAD) // 100% to 10000% (1x to 10x)
     limited(period_, 30 seconds, 1 weeks)
     {
         startingPrice = startingPrice_;
@@ -475,23 +456,22 @@ contract TheButton is ButtonBase {
     }
 
     function start() external payable auth {
+        require(stopped, "Already started!");
         stopped = false;
         
         if(campaigns.length != 0) {//if there was a past campaign
             ButtonCampaign storage c = campaigns[lastCampaignID];
             require(c.finalized, "Last campaign not finalized!");//make sure it was finalized
-        }     
-
-        if(!active()) {//if not active
-            _newCampaign();//start new campaign
-            c = campaigns[lastCampaignID];
-            _press(c);
-            depositETH(c.total, msg.sender, msg.value);// deposit ETH
-        }
+        }             
+        _newCampaign();//start new campaign
+        c = campaigns[lastCampaignID];
+        _press(c);
+        depositETH(c.total, msg.sender, msg.value);// deposit ETH        
     }
 
     ///Stopping will only affect new campaigns, not already running ones
     function stop() external auth {
+        require(!stopped, "Already stopped!");
         stopped = true;
     }
     
@@ -501,7 +481,6 @@ contract TheButton is ButtonBase {
         ButtonCampaign storage c = campaigns[lastCampaignID];
         _finalizeCampaign(c);
     }
-
 
     function finalizeCampaign(uint id) external {
         require(stopped);
@@ -552,12 +531,9 @@ contract TheButton is ButtonBase {
         require(c.deadline < now, "Before deadline!");
         require(!c.finalized, "Already finalized!");
         
-        uint totalBalance = c.total.balanceETH;
-
         if(c.presses != 0) {//If there were presses
-
-            //Handle all of the accounting
-            
+            uint totalBalance = c.total.balanceETH;
+            //Handle all of the accounting            
             transferETH(c.total, winners[c.lastPresser], totalBalance.wmul(c.jackpotFraction));
             winners[c.lastPresser].name = bytes32(c.lastPresser);
             totalWon = totalWon.add(totalBalance.wmul(c.jackpotFraction));
@@ -569,15 +545,20 @@ contract TheButton is ButtonBase {
             totalCharity = totalCharity.add(totalBalance.wmul(c.charityFraction));
 
             //avoiding rounding errors - just transfer the leftover
-            transferETH(c.total, nextCampaign, c.total.balanceETH);
+            // transferETH(c.total, nextCampaign, c.total.balanceETH);
 
             totalPresses = totalPresses.add(c.presses);
 
-            c.finalized = true;
             emit Winrar(c.lastPresser, totalBalance.wmul(c.jackpotFraction));
+        } 
+        // if there will be no next campaign
+        if(stopped) {
+            //transfer leftover to devs' base account
+            transferETH(c.total, base, c.total.balanceETH);
         } else {
-            // else just transfer all of the balance to the next campaign
-            transferETH(c.total, nextCampaign, totalBalance);
+            //otherwise transfer to next campaign
+            transferETH(c.total, nextCampaign, c.total.balanceETH);
         }
+        c.finalized = true;
     }
 }

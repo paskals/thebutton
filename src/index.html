@@ -7,6 +7,17 @@
 <!--<![endif]-->
 
 <head>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122338783-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-122338783-1');
+    </script>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>THΞ BUTTON</title>
@@ -16,18 +27,17 @@
 
     <!--  Essential META Tags -->
 
-    <meta property="og:title" content="TheButton.co - an ethereum game">
+    <meta property="og:title" content="The Button - an ethereum game">
     <meta property="og:description" content="Be the last presser and win the jackpot!">
-    <meta property="og:image" content="https://paradoxdao.github.io/thebutton/src/images/social-image.jpg">
-    <meta property="og:url" content="https://paradoxdao.github.io/thebutton/src/index.html">
-    <meta name="twitter:card" content="https://paradoxdao.github.io/thebutton/src/images/social-image.jpg">
+    <meta property="og:image" content="http://thebutton.co/images/social-image.jpg">
+    <meta property="og:url" content="http://thebutton.co">
+    <meta name="twitter:card" content="summary">
 
     <meta property="og:site_name" content="THΞ BUTTON">
-    <meta name="twitter:image:alt" content="TheButton.co">
-
+    <meta name="keywords" content="Ethereum, blockchain, dApp, casino, bet, betting, game,
+     jackpot, ether, ETH, the button, button"/>
 
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
 
     <link rel="stylesheet" href="css/fonticons.css">
     <link rel="stylesheet" href="fonts/stylesheet.css">
@@ -88,8 +98,6 @@
 
                                 <!-- Collect the nav links, forms, and other content for toggling -->
 
-
-
                                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                                     <ul class="nav navbar-nav navbar-right">
                                         <li>
@@ -108,7 +116,6 @@
         </div>
     </header>
     <!--End of header -->
-
 
     <section id="home" class="home">
         <div id="winner-section" class="content">
@@ -161,7 +168,7 @@
                                     <div class="jackpot single_counter_right wow fadeInRight" data-wow-duration="1s">
                                         <!-- <i class="lnr lnr-users"></i> -->
                                         <h2 class="currency big">Ξ</h2>
-                                        <h2 id="jackpot" class="statistic-number big">0.0</h2>
+                                        <h2 id="jackpot" class="statistic-number big">-</h2>
                                         <p class="bigger">Jackpot</p>
                                     </div>
                                 </div>
@@ -173,7 +180,7 @@
                                     <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
                                         <!-- <i class="fa fa-line-chart"></i> -->
                                         <h2 class="currency smaller-statistic">Ξ</h2>
-                                        <h2 id="price" class="statistic-number smaller-statistic">0.0</h2>
+                                        <h2 id="price" class="statistic-number smaller-statistic">-</h2>
                                         <p class="smaller">Price</p>
                                     </div>
                                 </div>
@@ -182,7 +189,7 @@
                                         <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
                                             <!-- <i class="fa fa-line-chart"></i> -->
                                             <h2 class="currency smaller-statistic">Ξ</h2>
-                                            <h2 id="charity" class="statistic-number smaller-statistic">0.0</h2>
+                                            <h2 id="charity" class="statistic-number smaller-statistic">-</h2>
                                             <p class="smaller">Raised for charity</p>
                                         </div>
                                     </div>
@@ -192,7 +199,7 @@
                                     <div class="col-sm-12 col-xs-11">
                                         <div class="single_counter_right wow fadeInRight" data-wow-duration="1s">
                                             <!-- <i class="fa fa-line-chart"></i> -->
-                                            <h2 id="press-count" class="statistic-number smaller-statistic">0</h2>
+                                            <h2 id="press-count" class="statistic-number smaller-statistic">-</h2>
                                             <p class="smaller">Presses</p>
                                         </div>
                                     </div>
@@ -305,29 +312,6 @@
 
                                 </div>
 
-                                <!-- <div class="row totalsRow">
-                                    <div class="col-sm-4 col-xs-4">
-                                        <div class="counter_right ">
-                                            <h2 class="currency total-statistic">Ξ</h2>
-                                            <h2 id="totalWon" class="statistic-number total-statistic">0.0</h2>
-                                            <p class="smaller">Total won</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-xs-4">
-                                        <div class="counter_right">
-                                            <h2 class="currency total-statistic">Ξ</h2>
-                                            <h2 id="totalCharity" class="statistic-number total-statistic">0.0</h2>
-                                            <p class="smaller">Total raised for charity</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-4 col-xs-4">
-                                        <div class="counter_right">
-                                            <h2 id="totalPresses" class="statistic-number total-statistic">0</h2>
-                                            <p class="smaller">Total presses</p>
-                                        </div>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -343,7 +327,7 @@
 
                     <div  class="col-sm-4 col-xs-3 single_counter_right wow fadeInRight" data-wow-duration="1s">
                         <div class="copyright_text">
-                            <a href="https://ropsten.etherscan.io/address/0x0F4AA2957a536D18562d227f06558938C87717CB" target="_blank" class=" wow fadeInRight"
+                            <a href="https://etherscan.io/address/0x2b0ec0993a00b2ea625e3b37fcc74742f43a72fe#code" target="_blank" class=" wow fadeInRight"
                                 data-wow-duration="1s">Contract Code</a>
 
                         </div>
