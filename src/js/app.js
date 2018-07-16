@@ -3,7 +3,7 @@ var userAccount;
 var animationID;
 var winner = false;
 
-var desiredNetwork = "3";
+var desiredNetwork = "1";
 var curNetwork = 1;
 var timesUp = new Event('over');
 
@@ -79,7 +79,7 @@ App = {
     } else {
       // If no injected web3 instance is detected, fall back to Infura
       App.noInjectedWeb3 = true;
-      App.web3Provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/47xPqLd4I69lkOUz61YF');
+      App.web3Provider = new Web3.providers.HttpProvider('https://mainnet.infura.io/47xPqLd4I69lkOUz61YF');
 
     }
 
