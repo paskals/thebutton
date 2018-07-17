@@ -83,9 +83,9 @@ App = {
 
     }
 
-    myWeb3 = new Web3(App.web3Provider);
+    App.myWeb3 = new Web3(App.web3Provider);
 
-    myWeb3.version.getNetwork(checkNetwork);
+    App.myWeb3.version.getNetwork(checkNetwork);
 
     return App.initContract();
   },
@@ -114,7 +114,7 @@ App = {
           }
           else {
             let name = result.args["by"];
-            lastPresser = name;
+            App.lastPresser = name;
             if (name == userAccount) {
 
             } else {
@@ -170,7 +170,7 @@ App = {
           }
           else {
             let to = result.args["to"];
-            lastPresser = name;
+            App.lastPresser = name;
             if (to == userAccount) {
 
             }
@@ -179,10 +179,10 @@ App = {
         })
 
         var accountInterval = setInterval(function () {
-          myWeb3.version.getNetwork(checkNetwork);
-          if (typeof myWeb3.eth.defaultAccount !== 'undefined')
-            if (myWeb3.eth.accounts[0] !== userAccount) {
-              userAccount = myWeb3.eth.accounts[0];
+          App.myWeb3.version.getNetwork(checkNetwork);
+          if (typeof App.myWeb3.eth.defaultAccount !== 'undefined')
+            if (App.myWeb3.eth.accounts[0] !== userAccount) {
+              userAccount = App.myWeb3.eth.accounts[0];
               App.refresh();
             }
         }, 1000);
@@ -244,7 +244,7 @@ App = {
               "timeOut": "0",
               "extendedTimeOut": "0"
             });
-          return buttonInstance.press({ from: userAccount, value: price });
+          return buttonInstance.press({ from: userAccount, value: App.price });
         }
       } else {
         toastr.warning("You need to unlock your account!");
@@ -292,40 +292,42 @@ App = {
       return buttonInstance.latestData.call();
     }).then(function (result) {
 
-      price = result[0];
-      jackpot = result[1];
-      charity = result[2];
-      dead = result[3];
-      presses = result[4];
-      lastPresser = result[5];
-
-      return buttonInstance.latestParams.call();
-    }).then(function (result) {
-      jackpotFraction = result[0];
-      devFraction = result[1];
-      charityFraction = result[2];
-      priceMul = result[3];
-      nParameter = result[4];
-
-    //   return buttonInstance.lastWinner.call();
-    // }).then(function (result) {
-    //   lastWinner = result;
-
-      return buttonInstance.totalsData.call();
-    }).then(function (result) {
-      if (winner) {
-        setDeadline(new Date(0));
-      } else {
-        setDeadline(new Date(dead * 1000));
+      if(result[3].toNumber() < App.dead) {
+        throw new Error("Wrong data")
       }
 
-      totalWon = result[0];
-      totalCharity = result[1];
-      totalPresses = result[2];
-      App.setUIData();
-    }).catch(function (err) {
+      App.price = result[0];
+      App.jackpot = result[1];
+      App.charity = result[2];
+      App.dead = result[3];
+      App.presses = result[4];
+      App.lastPresser = result[5];
+
+      return buttonInstance.latestParams.call()
+      .then(function (result) {
+        App.jackpotFraction = result[0];
+        App.devFraction = result[1];
+        App.charityFraction = result[2];
+        App.priceMul = result[3];
+        App.nParameter = result[4];
+  
+        return buttonInstance.totalsData.call();
+      }).then(function (result) {
+        if (winner) {
+          setDeadline(new Date(0));
+        } else {
+          setDeadline(new Date( App.dead * 1000));
+        }
+  
+        App.totalWon = result[0];
+        App.totalCharity = result[1];
+        App.totalPresses = result[2];
+        App.setUIData();
+      })
+    })
+    .catch(function (err) {
       console.log(err.message);
-    });
+    });;
   },
 
   checkWinner: function () {
@@ -343,7 +345,7 @@ App = {
       buttonInstance = instance;
       return buttonInstance.hasWon(userAccount);
     }).then(function (result) {
-      won = result;
+      App.won = result;
       if (result > 0) {
         winner = true;
       } else {
@@ -356,25 +358,25 @@ App = {
   },
 
   setUIData: function () {
-    let jack = formatETHString(jackpot);
-    let pri = formatETHString(price);
-    let char = formatETHString(charity);
-    let totWon = formatETHString(totalWon);
-    let totChar = formatETHString(totalCharity);
-    let presser = lastPresser;
+    let jack = formatETHString(App.jackpot);
+    let pri = formatETHString(App.price);
+    let char = formatETHString(App.charity);
+    let totWon = formatETHString(App.totalWon);
+    let totChar = formatETHString(App.totalCharity);
+    let presser = App.lastPresser;
     // let winner = lastWinner;
-    let mul = formatPercentageString(priceMul) * 100 - 100;
-    let charF = formatPercentageString(charityFraction) * 100;
-    let jackF = formatPercentageString(jackpotFraction) * 100;
-    let devF = formatPercentageString(devFraction) * 100;
+    let mul = formatPercentageString(App.priceMul) * 100 - 100;
+    let charF = formatPercentageString(App.charityFraction) * 100;
+    let jackF = formatPercentageString(App.jackpotFraction) * 100;
+    let devF = formatPercentageString(App.devFraction) * 100;
 
-    if (lastPresser != '0x0000000000000000000000000000000000000000') {
+    if (App.lastPresser != '0x0000000000000000000000000000000000000000') {
       if (presser.length > 26) {
         presser = presser.substring(0, 22) + "...";
       }
 
       var presserIcon = blockies.create({ // All options are optional
-        seed: lastPresser, // seed used to generate icon data, default: random
+        seed: App.lastPresser, // seed used to generate icon data, default: random
         size: 7, // width/height of the icon in blocks, default: 8
         scale: 3, // width/height of each block in pixels, default: 4
       });
@@ -384,29 +386,15 @@ App = {
       setElementValue('last-presser', presser);
     }
 
-    // if (lastWinner != '0x0000000000000000000000000000000000000000') {
-    //   if (winner.length > 26) {
-    //     winner = winner.substring(0, 22) + "...";
-    //   }
-    //   var winnerIcon = blockies.create({ // All options are optional
-    //     seed: lastWinner, // seed used to generate icon data, default: random
-    //     size: 7, // width/height of the icon in blocks, default: 8
-    //     scale: 3, // width/height of each block in pixels, default: 4
-    //   });
-    //   setElementValue('last-winner', winner);
-    //   var iconElement = document.getElementById('winner-identicon');
-    //   iconElement.replaceChild(winnerIcon, iconElement.childNodes[0]);
-    // }
-
     setElementValue('jackpot', jack);
     setElementValue('price', pri);
-    setElementValue('press-count', presses);
+    setElementValue('press-count', App.presses);
     setElementValue('charity', char);
     setElementValue('totalWon', totWon);
     setElementValue('totalCharity', totChar);
-    setElementValue('totalPresses', totalPresses);
+    setElementValue('totalPresses', App.totalPresses);
     setElementValue('priceMultiplier', mul);
-    setElementValue('nParameter', nParameter);
+    setElementValue('nParameter', App.nParameter);
     setElementValue('jackpotFraction', jackF);
     setElementValue('charityFraction', charF);
     setElementValue('devFraction', devF);
@@ -442,7 +430,7 @@ function setElentVisibility() {
       $("#totals-counter").hide(500);
       $("#timer-text").hide(500);
 
-      let winning = formatETHString(won);
+      let winning = formatETHString(App.won);
       setElementValue('winner-jackpot', winning);
     } else {
       $("#winner-section").hide(500);
@@ -458,7 +446,7 @@ function setPressButtonStyle() {
 }
 
 function formatETHString(n) {
-  n = myWeb3.fromWei(n, 'ether');
+  n = App.myWeb3.fromWei(n, 'ether');
   var withCommas;
   if (n>1.5) {
     withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -469,7 +457,7 @@ function formatETHString(n) {
 };
 
 function formatPercentageString(n) {
-  n = myWeb3.fromWei(n, 'ether');
+  n = App.myWeb3.fromWei(n, 'ether');
   var withCommas = Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
   return withCommas;
 };
