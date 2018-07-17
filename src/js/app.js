@@ -428,7 +428,7 @@ function setElentVisibility() {
     $("#counter").hide(500);
     $("#totals-counter").hide(500);
     $("#network-warning").show(500);
-    toastr.warning("You're not connected to the Ropsten Test network!");
+    toastr.warning("You're not connected to the main Ethereum network!");
   } else {
     $("#button").show(500);
     $("#network-warning").hide(500);
