@@ -12,4 +12,4 @@ app.get('/', function (req, res) {
 
 var httpServer = http.createServer(app);
 
-httpServer.listen(8080);
+httpServer.listen(8080, '127.0.0.1');
