@@ -1,5 +1,5 @@
 var userAccount;
-
+var gasPrice = 5000000000;
 var animationID;
 var winner = false;
 
@@ -223,10 +223,12 @@ App = {
     }
 
     var buttonInstance;
+
     let toast;
     App.contracts.TheButton.deployed().then(function (instance) {
       buttonInstance = instance;
 
+    }).then(function () {
       return App.getData();
     }).then(function () {
       if (typeof userAccount !== 'undefined') {
@@ -237,14 +239,14 @@ App = {
               "extendedTimeOut": "0"
             });
 
-          return buttonInstance.withdrawJackpot({ from: userAccount });
+          return buttonInstance.withdrawJackpot({ from: userAccount, gasPrice: gasPrice});
         } else {
           toast = toastr.info("Pressing the button...", "",
             {
               "timeOut": "0",
               "extendedTimeOut": "0"
             });
-          return buttonInstance.press({ from: userAccount, value: App.price });
+          return buttonInstance.press({from: userAccount, value: App.price, gasPrice: gasPrice});
         }
       } else {
         toastr.warning("You need to unlock your account!");
@@ -283,6 +285,29 @@ App = {
     if (curNetwork != desiredNetwork) {
       return;
     }
+
+    App.myWeb3.eth.getGasPrice(function (error, result) {
+      if (!error) {
+        let minutes = minutesLeft();
+        if(minutes > 0) {
+          if(minutes > 15.5) {
+            gasPrice = result*1.5;
+          } else if (minutes > 5.5) {
+            gasPrice = result * 2;
+          } else if (minutes > 1.5){
+            gasPrice = result*3;
+          } else {
+            gasPrice = result*4;
+          }
+        } else {
+          gasPrice = result;
+        }
+        // console.log(gasPrice);
+      }
+      else {
+        console.error(error);
+      }
+    });
 
     var buttonInstance;
 
@@ -469,6 +494,11 @@ function setElementValue(element, value) {
       $(this).text(value).fadeIn(duration);
     });
   }
+}
+
+function minutesLeft() {
+  var now = (new Date()).getTime();
+  return (App.dead - now/1000)/60;
 }
 
 function debounce(func, wait) {
