@@ -101,82 +101,86 @@ App = {
       App.contracts.TheButton.deployed().then(function (instance) {
         contract = instance;
 
-        pressedEvent = contract.Pressed();
-        wonEvent = contract.Winrar();
-        startedEvent = contract.Started();
+        if(!App.noInjectedWeb3) {
 
-        ethSentEvent = contract.ETHSent();
+          pressedEvent = contract.Pressed();
+          wonEvent = contract.Winrar();
+          startedEvent = contract.Started();
 
-        //Events:
-        pressedEvent.watch(function (error, result) {
-          if (error) {
-            console.log(error);
-          }
-          else {
-            let name = result.args["by"];
-            App.lastPresser = name;
-            if (name == userAccount) {
+          ethSentEvent = contract.ETHSent();
 
-            } else {
-              if (name.length > 25) {
-                name = name.substring(0, 21) + "...";
+          //Events:
+          pressedEvent.watch(function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+            else {
+              let name = result.args["by"];
+              App.lastPresser = name;
+              if (name == userAccount) {
+
+              } else {
+                if (name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name,
+                  "Button Pressed");
               }
-              toastr.info("By: " + name,
-                "Button Pressed");
             }
-          }
-          App.refresh();
-        })
+            App.refresh();
+          })
 
-        wonEvent.watch(function (error, result) {
-          if (error) {
-            console.log(error);
-          }
-          else {
-            let name = result.args["guy"];
-            let jackpot = result.args["jackpot"];
-            if (name == userAccount) {
-              toastr.success("You won the jackpot of " + formatETHString(jackpot) + " ETH!");
-            } else {
-              if (name.length > 25) {
-                name = name.substring(0, 21) + "...";
+          wonEvent.watch(function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+            else {
+              let name = result.args["guy"];
+              let jackpot = result.args["jackpot"];
+              if (name == userAccount) {
+                toastr.success("You won the jackpot of " + formatETHString(jackpot) + " ETH!");
+              } else {
+                if (name.length > 25) {
+                  name = name.substring(0, 21) + "...";
+                }
+                toastr.info("By: " + name,
+                  "Jackpot won");
               }
-              toastr.info("By: " + name,
-                "Jackpot won");
-            }
-
-          }
-          App.refresh();
-        })
-
-        startedEvent.watch(function (error, result) {
-          if (error) {
-            console.log(error);
-          }
-          else {
-            let i = result.args["i"];
-            let period = result.args["period"];
-            let startingETH = result.args["startingETH"];
-
-            toastr.info("Starting jackpot: " + formatETHString(startingETH) + "ETH, Period: " + period/60 + " minutes", 'New Campaign started! ID: ' + i);
-
-          }
-          App.refresh();
-        })
-
-        ethSentEvent.watch(function (error, result) {
-          if (error) {
-            console.log(error);
-          }
-          else {
-            let to = result.args["to"];
-            App.lastPresser = name;
-            if (to == userAccount) {
 
             }
-          }
-          App.refresh();
-        })
+            App.refresh();
+          })
+
+          startedEvent.watch(function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+            else {
+              let i = result.args["i"];
+              let period = result.args["period"];
+              let startingETH = result.args["startingETH"];
+
+              toastr.info("Starting jackpot: " + formatETHString(startingETH) + "ETH, Period: " + period/60 + " minutes", 'New Campaign started! ID: ' + i);
+
+            }
+            App.refresh();
+          })
+
+          ethSentEvent.watch(function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+            else {
+              let to = result.args["to"];
+              App.lastPresser = name;
+              if (to == userAccount) {
+
+              }
+            }
+            App.refresh();
+          })
+          
+        }
 
         var accountInterval = setInterval(function () {
           App.myWeb3.version.getNetwork(checkNetwork);
