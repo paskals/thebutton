@@ -46,6 +46,9 @@ Author URI: http://www.bootstrapthemes.co
     .bottom-text {
         font-size: 9px;
     }
+    .footer {
+        height: 50px;
+    }
     html {
         font-size: 80%;
     }
