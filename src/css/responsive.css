@@ -40,16 +40,14 @@ Author URI: http://www.bootstrapthemes.co
 }
 /* Landscape phones and portrait tablets */
 @media (max-width: 768px) {
-    .button {
-    }
     .big {
         font-size: 45px;
     }
-    .smaller-statistic {
-        font-size: 20px;
-    }
     .bottom-text {
         font-size: 9px;
+    }
+    .footer {
+        height: 50px;
     }
     html {
         font-size: 80%;
@@ -86,8 +84,33 @@ Author URI: http://www.bootstrapthemes.co
     html {
         font-size: 65%;
     }
+    /*#top-row
+    {
+    	zoom: 0.8;
+    	position: relative;
+    	align-self: center;
+    }*/
+    /*#timerCanvas
+    {
+    	top: calc(50% - 140px);
+    	left: calc(50% - 140px);
+    }*/
+    /*.counter .main_counter
+    {
+    	padding-top: 35px;
+    }*/
+    /*#timer-text
+    {
+    	margin-top: -30px;
+    }*/
     .form-control {
         margin-bottom: 10px;
+    }
+    .total-statistic {
+        font-size: 18px;
+    }
+    .smaller-statistic {
+        font-size: 18px;
     }
     .gellary .single_gellary_item .gellary_overlay {
         padding: 20px 0px 0px 0px;
