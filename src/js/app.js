@@ -1,5 +1,5 @@
 var userAccount;
-var gasPrice = 5000000000;
+var gasPrice = 3000000000;
 var animationID;
 var winner = false;
 
@@ -304,10 +304,14 @@ App = {
           } else {
             gasPrice = result*4;
           }
+          
         } else {
           gasPrice = result;
         }
-        // console.log(gasPrice);
+        //minimum 3 gwei
+        if(gasPrice < 3000000000){
+          gasPrice = 3000000000;
+        }
       }
       else {
         console.error(error);
