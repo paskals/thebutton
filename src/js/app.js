@@ -1,5 +1,5 @@
 var userAccount;
-var gasPrice = 5000000000;
+var gasPrice = 3000000000;
 var animationID;
 var winner = false;
 
@@ -39,6 +39,7 @@ App = {
   totalWon: 0,
   totalCharity: 0,
   totalPresses: 0,
+  stopped: false,
 
   init: function () {
     // Load data.
@@ -295,18 +296,22 @@ App = {
         let minutes = minutesLeft();
         if(minutes > 0) {
           if(minutes > 15.5) {
-            gasPrice = result*1.5;
+            gasPrice = result*2;
           } else if (minutes > 5.5) {
-            gasPrice = result * 2;
+            gasPrice = result * 2.5;
           } else if (minutes > 1.5){
             gasPrice = result*3;
           } else {
             gasPrice = result*4;
           }
+          
         } else {
           gasPrice = result;
         }
-        // console.log(gasPrice);
+        //minimum 3 gwei
+        if(gasPrice < 3000000000){
+          gasPrice = 3000000000;
+        }
       }
       else {
         console.error(error);
@@ -347,10 +352,15 @@ App = {
         } else {
           setDeadline(new Date( App.dead * 1000));
         }
-  
+        
         App.totalWon = result[0];
         App.totalCharity = result[1];
         App.totalPresses = result[2];
+
+        return buttonInstance.stopped.call();
+      }).then(function (result) {
+        App.stopped = result;
+
         App.setUIData();
       })
     })
@@ -397,7 +407,12 @@ App = {
     let mul = formatPercentageString(App.priceMul) * 100 - 100;
     let charF = formatPercentageString(App.charityFraction) * 100;
     let jackF = formatPercentageString(App.jackpotFraction) * 100;
-    let devF = formatPercentageString(App.devFraction) * 100;
+    let devF;
+    if(!App.stopped){
+      devF = formatPercentageString(App.devFraction) * 100;
+    } else {
+      devF = 100 - charF - jackF;
+    }
 
     if (App.lastPresser != '0x0000000000000000000000000000000000000000') {
       if (presser.length > 26) {
@@ -407,7 +422,7 @@ App = {
       var presserIcon = blockies.create({ // All options are optional
         seed: App.lastPresser, // seed used to generate icon data, default: random
         size: 7, // width/height of the icon in blocks, default: 8
-        scale: 3, // width/height of each block in pixels, default: 4
+        scale: 3 // width/height of each block in pixels, default: 4
       });
       
       var iconElement = document.getElementById('presser-identicon');
@@ -429,7 +444,7 @@ App = {
     setElementValue('devFraction', devF);
   }
 
-};
+}
 
 function checkNetwork(err, currentNetwork) {
   if (err) {
@@ -445,7 +460,7 @@ function setElentVisibility() {
     $("#counter").hide(500);
     $("#totals-counter").hide(500);
     $("#network-warning").show(500);
-    toastr.warning("You're not connected to the Ropsten Test network!");
+    toastr.warning("You're not connected to the Main Ethereum network!");
   } else {
     $("#button").show(500);
     $("#network-warning").hide(500);
