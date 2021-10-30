@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "express": "^4.16.3",
+    "solc": "^0.8.9",
     "toastr": "^2.1.4",
     "truffle-artifactor": "^3.0.6",
     "truffle-contract": "^3.0.6"
